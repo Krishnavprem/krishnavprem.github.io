@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Address Book | C Project</title>
+
+  <!-- MAIN SITE CSS -->
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    /* ================= PAGE LAYOUT ================= */
+    .project-container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 140px 20px 90px;
+    }
+
+    /* ================= HERO ================= */
+    .project-hero {
+      background: linear-gradient(
+        135deg,
+        rgba(30,64,175,0.12),
+        rgba(15,23,42,0.12)
+      );
+      border-radius: 26px;
+      padding: 60px 40px;
+      margin-bottom: 70px;
+      text-align: center;
+      box-shadow: 0 30px 65px rgba(0,0,0,0.15);
+    }
+
+    .project-hero h1 {
+      font-size: 3rem;
+      margin-bottom: 16px;
+    }
+
+    .project-hero p {
+      max-width: 780px;
+      margin: auto;
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      line-height: 1.8;
+    }
+
+    /* ================= SECTION CARD ================= */
+    .section-card {
+      background: var(--bg-card);
+      border-radius: 22px;
+      padding: 42px;
+      margin-bottom: 60px;
+      box-shadow: 0 18px 45px rgba(0,0,0,0.08);
+    }
+
+    .section-card h2 {
+      font-size: 1.9rem;
+      margin-bottom: 18px;
+    }
+
+    .section-card p {
+      color: var(--text-muted);
+      line-height: 1.8;
+      margin-bottom: 18px;
+    }
+
+    /* ================= FEATURE GRID ================= */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+      margin-top: 30px;
+    }
+
+    .feature-card {
+      background: var(--bg-soft);
+      padding: 26px;
+      border-radius: 18px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+    }
+
+    .feature-card h3 {
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .feature-card h3 i {
+      color: var(--accent);
+    }
+
+    /* ================= CODE PREVIEW ================= */
+    .code-preview {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 25px;
+      border-radius: 14px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      overflow-x: auto;
+      margin: 20px 0;
+    }
+
+    .code-comment {
+      color: #64748b;
+    }
+
+    .code-keyword {
+      color: #60a5fa;
+    }
+
+    .code-function {
+      color: #34d399;
+    }
+
+    .code-string {
+      color: #fbbf24;
+    }
+
+    /* ================= FILE STRUCTURE ================= */
+    .file-structure {
+      background: var(--bg-soft);
+      padding: 24px;
+      border-radius: 14px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 8px 0;
+      padding: 8px 12px;
+      background: var(--bg-card);
+      border-radius: 8px;
+    }
+
+    .file-item i {
+      color: var(--accent);
+    }
+
+    /* ================= TECH TAGS ================= */
+    .tech-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .tech-tags span {
+      background: rgba(30,64,175,0.15);
+      color: var(--accent);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    /* ================= LINKS ================= */
+    .project-links {
+      margin-top: 28px;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .github-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--accent);
+      color: #fff;
+      padding: 14px 22px;
+      border-radius: 14px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: transform 0.2s ease, background 0.3s ease;
+    }
+
+    .github-btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+    }
+
+    .demo-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-soft);
+      color: var(--text-main);
+      padding: 14px 22px;
+      border-radius: 14px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: transform 0.2s ease, background 0.3s ease;
+    }
+
+    .demo-btn:hover {
+      background: var(--bg-card);
+      transform: translateY(-2px);
+    }
+
+    /* ================= VALIDATION TABLE ================= */
+    .validation-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+
+    .validation-table th {
+      background: var(--bg-soft);
+      padding: 14px;
+      text-align: left;
+      font-weight: 600;
+    }
+
+    .validation-table td {
+      padding: 14px;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .validation-table tr:hover {
+      background: var(--bg-soft);
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ================= HEADER ================= -->
+<header>
+  <div class="nav-container">
+    <div class="logo">Krishna's Portfolio</div>
+    <nav>
+      <ul>
+        <li><a href="../index.html#projects">← Back to Projects</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- ================= MAIN ================= -->
+<main class="project-container">
+
+  <!-- HERO -->
+  <section class="project-hero">
+    <h1>Address Book System</h1>
+    <p>
+      A console-based C application for managing personal contacts with full CRUD operations,
+      input validation, and file persistence. Built with modular architecture and comprehensive
+      data validation.
+    </p>
+  </section>
+
+  <!-- DEMO VIDEO -->
+  <section class="section-card">
+    <h2>Project Demo</h2>
+    <div class="tech-tags">
+      <span>C Programming</span>
+      <span>File I/O</span>
+      <span>Data Structures</span>
+      <span>Input Validation</span>
+      <span>CRUD Operations</span>
+      <span>Modular Design</span>
+    </div>
+    
+    <div class="project-links">
+      <a href="https://github.com/Krishnavprem/Addressbook" target="_blank" class="github-btn">
+        <i class="fab fa-github"></i> View Source Code
+      </a>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="section-card">
+    <h2>Core Features</h2>
+    
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3><i class="fas fa-user-plus"></i> Create Contact</h3>
+        <p>Add new contacts with comprehensive validation for name, phone number, and email format.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-search"></i> Search Contact</h3>
+        <p>Search by name (substring), phone number (exact), or email (exact) with case-insensitive matching.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-edit"></i> Edit Contact</h3>
+        <p>Update any field of existing contacts with intelligent duplicate detection and validation.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-trash"></i> Delete Contact</h3>
+        <p>Remove contacts with confirmation and handling of multiple matches.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-list"></i> List Contacts</h3>
+        <p>Display all contacts in sorted alphabetical order with formatted table output.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-save"></i> File Persistence</h3>
+        <p>Automatic save/load to CSV file with robust error handling and data integrity.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- VALIDATION RULES -->
+  <section class="section-card">
+    <h2>Input Validation</h2>
+    
+    <table class="validation-table">
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>Validation Rules</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Name</strong></td>
+          <td>• Only letters, spaces, and dots allowed<br>• Must not start with dot<br>• Maximum 50 characters</td>
+        </tr>
+        <tr>
+          <td><strong>Phone Number</strong></td>
+          <td>• Exactly 10 digits<br>• Cannot start with 0<br>• Only numeric characters<br>• Must be unique</td>
+        </tr>
+        <tr>
+          <td><strong>Email</strong></td>
+          <td>• Must contain exactly one '@'<br>• Must end with '.com'<br>• Only letters, numbers, underscores, '@', '.' allowed<br>• Must be unique</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- CODE ARCHITECTURE -->
+  <section class="section-card">
+    <h2>Code Architecture</h2>
+    
+    <div class="file-structure">
+      <h3>Modular File Structure</h3>
+      <div class="file-item">
+        <i class="fas fa-file"></i>
+        <span><strong>main.c</strong> - Program entry point and menu system</span>
+      </div>
+      <div class="file-item">
+        <i class="fas fa-file-code"></i>
+        <span><strong>contact.h/c</strong> - Core data structures and operations</span>
+      </div>
+      <div class="file-item">
+        <i class="fas fa-database"></i>
+        <span><strong>file.h/c</strong> - File I/O and persistence layer</span>
+      </div>
+      <div class="file-item">
+        <i class="fas fa-users"></i>
+        <span><strong>populate.h/c</strong> - Dummy data generation</span>
+      </div>
+    </div>
+
+    <div class="code-preview">
+      <span class="code-comment">// Example: Core Contact Structure</span><br>
+      <span class="code-keyword">#define</span> MAX_CONTACTS 100<br><br>
+      
+      <span class="code-keyword">typedef struct</span> {<br>
+      &nbsp;&nbsp;<span class="code-keyword">char</span> name[50];<br>
+      &nbsp;&nbsp;<span class="code-keyword">char</span> phone[20];<br>
+      &nbsp;&nbsp;<span class="code-keyword">char</span> email[50];<br>
+      } <span class="code-function">Contact</span>;<br><br>
+      
+      <span class="code-keyword">typedef struct</span> {<br>
+      &nbsp;&nbsp;<span class="code-function">Contact</span> contacts[MAX_CONTACTS];<br>
+      &nbsp;&nbsp;<span class="code-keyword">int</span> contactCount;<br>
+      } <span class="code-function">AddressBook</span>;
+    </div>
+  </section>
+
+  <!-- TECHNOLOGIES -->
+  <section class="section-card">
+    <h2>Technologies & Concepts</h2>
+    <div class="tech-tags">
+      <span>C Programming</span>
+      <span>Structures</span>
+      <span>File Handling</span>
+      <span>String Manipulation</span>
+      <span>Input Validation</span>
+      <span>Modular Programming</span>
+      <span>Error Handling</span>
+      <span>CSV Parsing</span>
+      <span>Sorting Algorithms</span>
+      <span>Search Algorithms</span>
+      <span>Memory Management</span>
+      <span>Command Line Interface</span>
+    </div>
+  </section>
+
+  <!-- CHALLENGES -->
+  <section class="section-card">
+    <h2>Key Challenges & Solutions</h2>
+    
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3><i class="fas fa-bug"></i> Data Validation</h3>
+        <p>Implemented comprehensive validation for all input fields with user-friendly error messages and re-prompting.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-search-plus"></i> Substring Search</h3>
+        <p>Developed efficient case-insensitive substring matching for contact names using optimized string comparison.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-file-export"></i> File Persistence</h3>
+        <p>Created robust CSV read/write operations with error handling and data integrity checks.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPILATION -->
+  <section class="section-card">
+    <h2>Compilation & Usage</h2>
+    
+    <div class="code-preview">
+      <span class="code-comment"># Compile the project</span><br>
+      gcc main.c contact.c file.c populate.c -o address_book<br><br>
+      
+      <span class="code-comment"># Run the program</span><br>
+      ./address_book<br><br>
+      
+      <span class="code-comment"># Sample menu interaction</span><br>
+      Address Book Menu:<br>
+      1. Create contact<br>
+      2. Search contact<br>
+      3. Edit contact<br>
+      4. Delete contact<br>
+      5. List all contacts<br>
+      6. Save contacts<br>
+      7. Exit<br>
+      Enter your choice:
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // Simple ZOI-like functionality for this page
+  document.addEventListener('DOMContentLoaded', function() {
+    const codeBlocks = document.querySelectorAll('.code-preview');
+    
+    codeBlocks.forEach(block => {
+      block.addEventListener('click', function() {
+        const text = this.innerText;
+        navigator.clipboard.writeText(text).then(() => {
+          const original = this.innerHTML;
+          this.innerHTML = '<i class="fas fa-check"></i> Code copied to clipboard!';
+          setTimeout(() => {
+            this.innerHTML = original;
+          }, 2000);
+        });
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

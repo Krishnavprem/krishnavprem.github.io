@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Image Steganography | C Project</title>
+
+  <!-- MAIN SITE CSS -->
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    /* ================= PAGE LAYOUT ================= */
+    .project-container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 140px 20px 90px;
+    }
+
+    /* ================= HERO ================= */
+    .project-hero {
+      background: linear-gradient(
+        135deg,
+        rgba(30,64,175,0.12),
+        rgba(15,23,42,0.12)
+      );
+      border-radius: 26px;
+      padding: 60px 40px;
+      margin-bottom: 70px;
+      text-align: center;
+      box-shadow: 0 30px 65px rgba(0,0,0,0.15);
+    }
+
+    .project-hero h1 {
+      font-size: 3rem;
+      margin-bottom: 16px;
+    }
+
+    .project-hero p {
+      max-width: 780px;
+      margin: auto;
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      line-height: 1.8;
+    }
+
+    /* ================= SECTION CARD ================= */
+    .section-card {
+      background: var(--bg-card);
+      border-radius: 22px;
+      padding: 42px;
+      margin-bottom: 60px;
+      box-shadow: 0 18px 45px rgba(0,0,0,0.08);
+    }
+
+    .section-card h2 {
+      font-size: 1.9rem;
+      margin-bottom: 18px;
+    }
+
+    .section-card p {
+      color: var(--text-muted);
+      line-height: 1.8;
+      margin-bottom: 18px;
+    }
+
+    /* ================= IMAGE COMPARISON ================= */
+    .image-comparison {
+      display: flex;
+      gap: 30px;
+      margin: 30px 0;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .image-box {
+      text-align: center;
+      flex: 1;
+    }
+
+    .image-box img {
+      width: 100%;
+      max-width: 400px;
+      border-radius: 14px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .image-box .caption {
+      margin-top: 15px;
+      font-weight: 500;
+      color: var(--text-main);
+    }
+
+    /* ================= FEATURE GRID ================= */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-top: 30px;
+    }
+
+    .feature-card {
+      background: var(--bg-soft);
+      padding: 26px;
+      border-radius: 18px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+    }
+
+    .feature-card h3 {
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .feature-card h3 i {
+      color: var(--accent);
+    }
+
+    /* ================= CODE PREVIEW ================= */
+    .code-preview {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 25px;
+      border-radius: 14px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      overflow-x: auto;
+      margin: 20px 0;
+    }
+
+    .code-comment {
+      color: #64748b;
+    }
+
+    .code-keyword {
+      color: #60a5fa;
+    }
+
+    .code-function {
+      color: #34d399;
+    }
+
+    .code-string {
+      color: #fbbf24;
+    }
+
+    .code-number {
+      color: #f472b6;
+    }
+
+    /* ================= PROCESS FLOW ================= */
+    .process-flow {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin: 30px 0;
+    }
+
+    .process-step {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 20px;
+      background: var(--bg-soft);
+      border-radius: 14px;
+    }
+
+    .step-number {
+      background: var(--accent);
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+
+    .step-content {
+      flex: 1;
+    }
+
+    /* ================= FILE STRUCTURE ================= */
+    .file-structure {
+      background: var(--bg-soft);
+      padding: 24px;
+      border-radius: 14px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 8px 0;
+      padding: 8px 12px;
+      background: var(--bg-card);
+      border-radius: 8px;
+    }
+
+    .file-item i {
+      color: var(--accent);
+    }
+
+    /* ================= TECH TAGS ================= */
+    .tech-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .tech-tags span {
+      background: rgba(30,64,175,0.15);
+      color: var(--accent);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    /* ================= LSB VISUALIZATION ================= */
+    .lsb-visual {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+
+    .bit-box {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      font-weight: bold;
+      font-family: monospace;
+    }
+
+    .bit-msb {
+      background: #4ade80;
+      color: #14532d;
+    }
+
+    .bit-lsb {
+      background: #f87171;
+      color: #7f1d1d;
+    }
+
+    .bit-normal {
+      background: #94a3b8;
+      color: white;
+    }
+
+    /* ================= LINKS ================= */
+    .project-links {
+      margin-top: 28px;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .github-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--accent);
+      color: #fff;
+      padding: 14px 22px;
+      border-radius: 14px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: transform 0.2s ease, background 0.3s ease;
+    }
+
+    .github-btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+    }
+
+    .demo-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-soft);
+      color: var(--text-main);
+      padding: 14px 22px;
+      border-radius: 14px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: transform 0.2s ease, background 0.3s ease;
+    }
+
+    .demo-btn:hover {
+      background: var(--bg-card);
+      transform: translateY(-2px);
+    }
+
+    /* ================= MOBILE RESPONSIVE ================= */
+    @media (max-width: 768px) {
+      .image-comparison {
+        flex-direction: column;
+      }
+      
+      .process-step {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .lsb-visual {
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ================= HEADER ================= -->
+<header>
+  <div class="nav-container">
+    <div class="logo">Krishna's Portfolio</div>
+    <nav>
+      <ul>
+        <li><a href="../index.html#projects">← Back to Projects</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- ================= MAIN ================= -->
+<main class="project-container">
+
+  <!-- HERO -->
+  <section class="project-hero">
+    <h1>Image Steganography</h1>
+    <p>
+      A C-based steganography application that hides secret messages within BMP images using 
+      Least Significant Bit (LSB) encoding. Encode text files into images and decode them 
+      back with secure magic string authentication.
+    </p>
+  </section>
+
+  <!-- DEMO & TAGS -->
+  <section class="section-card">
+    <h2>Project Overview</h2>
+    <div class="tech-tags">
+      <span>C Programming</span>
+      <span>Steganography</span>
+      <span>LSB Encoding</span>
+      <span>BMP File Format</span>
+      <span>File I/O</span>
+      <span>Bit Manipulation</span>
+      <span>Encryption</span>
+      <span>Modular Design</span>
+    </div>
+    
+    <div class="project-links">
+      <a href="https://github.com/Krishnavprem/LSB-Image-Steganography" target="_blank" class="github-btn">
+        <i class="fab fa-github"></i> View Source Code
+      </a>
+    </div>
+  </section>
+
+  <!-- IMAGE COMPARISON -->
+  <section class="section-card">
+    <h2>Image Comparison</h2>
+    <p>Original image vs Stego image (no visible difference):</p>
+    
+    <div class="image-comparison">
+      <div class="image-box">
+        <img src="../images/project/beautiful.bmp" alt="Original BMP Image" 
+             onerror="this.onerror=null; this.src='https://via.placeholder.com/400x300/1e40af/ffffff?text=Original+Image'">
+        <div class="caption">Original Image (beautiful.bmp)</div>
+      </div>
+      
+      <div class="image-box">
+        <img src="../images/project/stego.bmp" alt="Stego BMP Image" 
+             onerror="this.onerror=null; this.src='https://via.placeholder.com/400x300/0f766e/ffffff?text=Stego+Image'">
+        <div class="caption">Stego Image (stego.bmp)</div>
+      </div>
+    </div>
+    
+    <p class="tech-tags">
+      <span>Hidden Message: "My password is SECRET ;)"</span>
+    </p>
+  </section>
+
+  <!-- LSB EXPLANATION -->
+  <section class="section-card">
+    <h2>LSB Encoding Technique</h2>
+    
+    <div class="lsb-visual">
+      <div class="bit-box bit-msb">M</div>
+      <div class="bit-box bit-normal">S</div>
+      <div class="bit-box bit-normal">B</div>
+      <div class="bit-box bit-normal">4</div>
+      <div class="bit-box bit-normal">3</div>
+      <div class="bit-box bit-normal">2</div>
+      <div class="bit-box bit-normal">1</div>
+      <div class="bit-box bit-lsb">L</div>
+      <span style="margin: 0 20px;">→</span>
+      <div class="bit-box" style="background: #7c3aed; color: white">11101101</div>
+    </div>
+    
+    <p>
+      Each byte in the image pixel data (R, G, B channels) contains 8 bits. We replace only the 
+      <strong>Least Significant Bit (LSB)</strong> of each byte with one bit from our secret message. 
+      This changes the pixel value by at most 1 out of 255, making the change invisible to the human eye.
+    </p>
+    
+    <div class="code-preview">
+      <span class="code-comment">// Encoding a byte into LSB of image buffer</span><br>
+      <span class="code-keyword">Status</span> <span class="code-function">encode_byte_to_lsb</span>(<span class="code-keyword">char</span> data, <span class="code-keyword">char</span> *image_buffer) {<br>
+      &nbsp;&nbsp;<span class="code-keyword">int</span> mask = <span class="code-number">1</span>;<br>
+      &nbsp;&nbsp;<span class="code-keyword">for</span>(<span class="code-keyword">int</span> i=<span class="code-number">0</span>; i&lt;<span class="code-number">8</span>; i++) {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;image_buffer[i] = image_buffer[i] &amp; (~mask);<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;image_buffer[i] = image_buffer[i] | ((data&gt;&gt;i) &amp; mask);<br>
+      &nbsp;&nbsp;}<br>
+      &nbsp;&nbsp;<span class="code-keyword">return</span> e_success;<br>
+      }
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="section-card">
+    <h2>Core Features</h2>
+    
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3><i class="fas fa-lock"></i> Secure Encoding</h3>
+        <p>Hide text files within BMP images using LSB steganography with magic string authentication.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-unlock"></i> Accurate Decoding</h3>
+        <p>Extract hidden messages with precise bit-by-bit LSB extraction and validation.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-file-image"></i> BMP Support</h3>
+        <p>Full support for 24-bit BMP format with proper header preservation.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-shield-alt"></i> Magic String</h3>
+        <p>User-defined magic string for secure access to hidden data.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-expand-arrows-alt"></i> Capacity Check</h3>
+        <p>Automatically verifies if image has enough capacity to store the secret file.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-code-branch"></i> Modular Design</h3>
+        <p>Clean separation of encoding and decoding logic with reusable components.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS FLOW -->
+  <section class="section-card">
+    <h2>Encoding Process Flow</h2>
+    
+    <div class="process-flow">
+      <div class="process-step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3>Read & Validate</h3>
+          <p>Check BMP and text files, validate arguments and file extensions.</p>
+        </div>
+      </div>
+      
+      <div class="process-step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3>Capacity Check</h3>
+          <p>Verify image has enough pixels to store secret data + metadata.</p>
+        </div>
+      </div>
+      
+      <div class="process-step">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3>Copy BMP Header</h3>
+          <p>Preserve original image header (54 bytes) in stego image.</p>
+        </div>
+      </div>
+      
+      <div class="process-step">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <h3>Encode Metadata</h3>
+          <p>Encode magic string, file extension, and file size into LSBs.</p>
+        </div>
+      </div>
+      
+      <div class="process-step">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <h3>Encode Secret Data</h3>
+          <p>Bit-by-bit LSB encoding of the entire secret file content.</p>
+        </div>
+      </div>
+      
+      <div class="process-step">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <h3>Copy Remaining Data</h3>
+          <p>Copy unchanged pixel data to complete the stego image.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARCHITECTURE -->
+  <section class="section-card">
+    <h2>Code Architecture</h2>
+    
+    <div class="file-structure">
+      <div class="file-item">
+        <i class="fas fa-file"></i>
+        <span><strong>test_encode.c</strong> - Main program with CLI argument handling</span>
+      </div>
+      <div class="file-item">
+        <i class="fas fa-file-code"></i>
+        <span><strong>encode.h/c</strong> - Encoding logic and data structures</span>
+      </div>
+      <div class="file-item">
+        <i class="fas fa-file-code"></i>
+        <span><strong>decode.h/c</strong> - Decoding logic and data structures</span>
+      </div>
+      <div class="file-item">
+        <i class="fas fa-cube"></i>
+        <span><strong>types.h</strong> - Custom data types and status enums</span>
+      </div>
+      <div class="file-item">
+        <i class="fas fa-key"></i>
+        <span><strong>common.h</strong> - Common constants (MAGIC_STRING)</span>
+      </div>
+    </div>
+
+    <div class="code-preview">
+      <span class="code-comment">// Core data structure for encoding</span><br>
+      <span class="code-keyword">typedef struct</span> _EncodeInfo {<br>
+      &nbsp;&nbsp;<span class="code-keyword">char</span> *src_image_fname;<br>
+      &nbsp;&nbsp;FILE *fptr_src_image;<br>
+      &nbsp;&nbsp;<span class="code-keyword">uint</span> image_capacity;<br>
+      &nbsp;&nbsp;<span class="code-keyword">char</span> *secret_fname;<br>
+      &nbsp;&nbsp;FILE *fptr_secret;<br>
+      &nbsp;&nbsp;<span class="code-keyword">char</span> extn_secret_file[MAX_FILE_SUFFIX];<br>
+      &nbsp;&nbsp;<span class="code-keyword">long</span> size_secret_file;<br>
+      &nbsp;&nbsp;<span class="code-keyword">char</span> *stego_image_fname;<br>
+      &nbsp;&nbsp;FILE *fptr_stego_image;<br>
+      &nbsp;&nbsp;<span class="code-keyword">char</span> *magic_string;<br>
+      } <span class="code-function">EncodeInfo</span>;
+    </div>
+  </section>
+
+  <!-- USAGE -->
+  <section class="section-card">
+    <h2>Usage Examples</h2>
+    
+    <div class="code-preview">
+      <span class="code-comment"># Encode secret.txt into beautiful.bmp, create stego.bmp</span><br>
+      $ ./a.out -e beautiful.bmp secret.txt stego.bmp<br><br>
+      
+      <span class="code-comment"># During encoding, you'll be prompted for magic string</span><br>
+      Enter magic string: <span class="code-string">#*</span><br><br>
+      
+      <span class="code-comment"># Decode from stego.bmp to output.txt</span><br>
+      $ ./a.out -d stego.bmp output.txt<br><br>
+      
+      <span class="code-comment"># During decoding, enter the same magic string</span><br>
+      Enter magic string: <span class="code-string">#*</span><br><br>
+      
+      <span class="code-comment"># View the extracted secret</span><br>
+      $ cat output.txt<br>
+      My password is SECRET ;)
+    </div>
+  </section>
+
+  <!-- TECHNOLOGIES -->
+  <section class="section-card">
+    <h2>Technologies & Concepts</h2>
+    <div class="tech-tags">
+      <span>C Programming</span>
+      <span>Bit Manipulation</span>
+      <span>File I/O Operations</span>
+      <span>BMP File Format</span>
+      <span>Least Significant Bit</span>
+      <span>Steganography</span>
+      <span>Data Hiding</span>
+      <span>Modular Programming</span>
+      <span>Error Handling</span>
+      <span>Command Line Interface</span>
+      <span>Memory Management</span>
+      <span>Binary File Processing</span>
+    </div>
+  </section>
+
+  <!-- CHALLENGES -->
+  <section class="section-card">
+    <h2>Technical Challenges & Solutions</h2>
+    
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3><i class="fas fa-calculator"></i> Capacity Calculation</h3>
+        <p>Implemented precise calculation of available LSB slots vs required bits for all metadata.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-exchange-alt"></i> Byte Manipulation</h3>
+        <p>Developed efficient bit-shifting and masking operations for LSB encoding/decoding.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-file-export"></i> File Format Integrity</h3>
+        <p>Preserved BMP header structure while manipulating only pixel data sections.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPILATION -->
+  <section class="section-card" id="demo">
+    <h2>Compilation & Testing</h2>
+    
+    <div class="code-preview">
+      <span class="code-comment"># Compile all source files</span><br>
+      gcc test_encode.c encode.c decode.c -o stegano<br><br>
+      
+      <span class="code-comment"># Test encoding (sample files included in repo)</span><br>
+      ./stegano -e beautiful.bmp secret.txt stego.bmp<br><br>
+      
+      <span class="code-comment"># Verify encoding was successful</span><br>
+      echo "Encoding completed. File sizes:"<br>
+      ls -lh beautiful.bmp stego.bmp<br><br>
+      
+      <span class="code-comment"># Test decoding</span><br>
+      ./stegano -d stego.bmp output.txt<br><br>
+      
+      <span class="code-comment"># Compare original and extracted secrets</span><br>
+      diff secret.txt output.txt && echo "Success! Files match."
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // Interactive LSB visualization
+  document.addEventListener('DOMContentLoaded', function() {
+    const codeBlocks = document.querySelectorAll('.code-preview');
+    
+    codeBlocks.forEach(block => {
+      block.addEventListener('click', function() {
+        const text = this.innerText;
+        navigator.clipboard.writeText(text).then(() => {
+          const original = this.innerHTML;
+          this.innerHTML = '<i class="fas fa-check"></i> Code copied to clipboard!';
+          setTimeout(() => {
+            this.innerHTML = original;
+          }, 2000);
+        });
+      });
+    });
+    
+    // Add hover effect to process steps
+    const steps = document.querySelectorAll('.process-step');
+    steps.forEach(step => {
+      step.addEventListener('mouseenter', () => {
+        const number = step.querySelector('.step-number');
+        number.style.transform = 'scale(1.1)';
+        number.style.transition = 'transform 0.2s ease';
+      });
+      
+      step.addEventListener('mouseleave', () => {
+        const number = step.querySelector('.step-number');
+        number.style.transform = 'scale(1)';
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

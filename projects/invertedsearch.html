@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Inverted Search Engine | C Project</title>
+
+  <!-- MAIN SITE CSS -->
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    /* ================= PAGE LAYOUT ================= */
+    .project-container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 140px 20px 90px;
+    }
+
+    /* ================= HERO ================= */
+    .project-hero {
+      background: linear-gradient(
+        135deg,
+        rgba(30,64,175,0.12),
+        rgba(15,23,42,0.12)
+      );
+      border-radius: 26px;
+      padding: 60px 40px;
+      margin-bottom: 70px;
+      text-align: center;
+      box-shadow: 0 30px 65px rgba(0,0,0,0.15);
+    }
+
+    .project-hero h1 {
+      font-size: 3rem;
+      margin-bottom: 16px;
+    }
+
+    .project-hero p {
+      max-width: 780px;
+      margin: auto;
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      line-height: 1.8;
+    }
+
+    /* ================= SECTION CARD ================= */
+    .section-card {
+      background: var(--bg-card);
+      border-radius: 22px;
+      padding: 42px;
+      margin-bottom: 60px;
+      box-shadow: 0 18px 45px rgba(0,0,0,0.08);
+    }
+
+    .section-card h2 {
+      font-size: 1.9rem;
+      margin-bottom: 18px;
+    }
+
+    .section-card p {
+      color: var(--text-muted);
+      line-height: 1.8;
+      margin-bottom: 18px;
+    }
+
+    /* ================= FEATURE GRID ================= */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+      margin-top: 30px;
+    }
+
+    .feature-card {
+      background: var(--bg-soft);
+      padding: 26px;
+      border-radius: 18px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+    }
+
+    .feature-card h3 {
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .feature-card h3 i {
+      color: var(--accent);
+    }
+
+    /* ================= CODE PREVIEW ================= */
+    .code-preview {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 25px;
+      border-radius: 14px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      overflow-x: auto;
+      margin: 20px 0;
+    }
+
+    .code-comment {
+      color: #64748b;
+    }
+
+    .code-keyword {
+      color: #60a5fa;
+    }
+
+    .code-function {
+      color: #34d399;
+    }
+
+    .code-string {
+      color: #fbbf24;
+    }
+
+    .code-type {
+      color: #c084fc;
+    }
+
+    /* ================= FILE STRUCTURE ================= */
+    .file-structure {
+      background: var(--bg-soft);
+      padding: 24px;
+      border-radius: 14px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 8px 0;
+      padding: 8px 12px;
+      background: var(--bg-card);
+      border-radius: 8px;
+    }
+
+    .file-item i {
+      color: var(--accent);
+    }
+
+    /* ================= TECH TAGS ================= */
+    .tech-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .tech-tags span {
+      background: rgba(30,64,175,0.15);
+      color: var(--accent);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    /* ================= LINKS ================= */
+    .project-links {
+      margin-top: 28px;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .github-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--accent);
+      color: #fff;
+      padding: 14px 22px;
+      border-radius: 14px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: transform 0.2s ease, background 0.3s ease;
+    }
+
+    .github-btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+    }
+
+    .demo-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-soft);
+      color: var(--text-main);
+      padding: 14px 22px;
+      border-radius: 14px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: transform 0.2s ease, background 0.3s ease;
+    }
+
+    .demo-btn:hover {
+      background: var(--bg-card);
+      transform: translateY(-2px);
+    }
+
+    /* ================= OUTPUT CONSOLE ================= */
+    .output-console {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 25px;
+      border-radius: 14px;
+      font-family: 'Courier New', monospace;
+      margin: 20px 0;
+      overflow-x: auto;
+    }
+
+    .output-console .prompt {
+      color: #34d399;
+    }
+
+    .output-console .result {
+      color: #60a5fa;
+    }
+
+    /* ================= HASH TABLE VISUAL ================= */
+    .hash-visual {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin: 30px 0;
+      padding: 20px;
+      background: var(--bg-soft);
+      border-radius: 12px;
+    }
+
+    .hash-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 15px;
+    }
+
+    .hash-index {
+      width: 60px;
+      background: var(--accent);
+      color: white;
+      padding: 10px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .hash-chain {
+      flex: 1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 10px;
+      background: var(--bg-card);
+      border-radius: 8px;
+    }
+
+    .chain-node {
+      background: var(--accent);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+
+    /* ================= DATABASE TABLE ================= */
+    .db-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+
+    .db-table th {
+      background: var(--bg-soft);
+      padding: 14px;
+      text-align: left;
+      font-weight: 600;
+    }
+
+    .db-table td {
+      padding: 14px;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .db-table tr:hover {
+      background: var(--bg-soft);
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ================= HEADER ================= -->
+<header>
+  <div class="nav-container">
+    <div class="logo">Krishna's Portfolio</div>
+    <nav>
+      <ul>
+        <li><a href="../index.html#projects">← Back to Projects</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- ================= MAIN ================= -->
+<main class="project-container">
+
+  <!-- HERO -->
+  <section class="project-hero">
+    <h1>Inverted Search Engine</h1>
+    <p>
+      A C-based search engine that creates an inverted index of words from multiple text files using hash tables. 
+      Implements efficient word indexing, frequency tracking, and fast search operations with a clean command-line interface.
+    </p>
+  </section>
+
+  <!-- DEMO & LINKS -->
+  <section class="section-card">
+    <h2>Project Demo</h2>
+    <div class="tech-tags">
+      <span>C Programming</span>
+      <span>Data Structures</span>
+      <span>Hash Tables</span>
+      <span>File I/O</span>
+      <span>Search Algorithms</span>
+      <span>Memory Management</span>
+    </div>
+    
+    <div class="output-console">
+      <span class="prompt">$</span> ./inverted file1.txt file2.txt file3.txt<br>
+      =========================================<br>
+      Inverted Search Engine<br>
+      1. Create Database<br>
+      2. Search Database<br>
+      3. Display Database<br>
+      4. Update Database<br>
+      5. Save Database<br>
+      6. Exit<br>
+      =========================================<br><br>
+      
+      <span class="prompt">Enter choice:</span> 1<br>
+      <span class="result">Database created successfully</span><br><br>
+      
+      <span class="prompt">Enter choice:</span> 2<br>
+      <span class="prompt">Enter word to search:</span> hello<br>
+      <span class="result">Word found at index 42</span><br>
+      <span class="result">Word: hello | Files: 2</span><br>
+      <span class="result">   ->file1.txt : 3</span><br>
+      <span class="result">   ->file3.txt : 2</span>
+    </div>
+    
+    <div class="project-links">
+      <a href="https://github.com/Krishnavprem/Inverted-Search" target="_blank" class="github-btn">
+        <i class="fab fa-github"></i> View Source Code
+      </a>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="section-card">
+    <h2>Core Features</h2>
+    
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3><i class="fas fa-database"></i> Database Creation</h3>
+        <p>Creates inverted index from multiple text files with word frequency tracking across files.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-search"></i> Fast Word Search</h3>
+        <p>O(1) average case search using hash tables to find words and their file occurrences instantly.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-sync-alt"></i> Dynamic Updates</h3>
+        <p>Add new files to existing database without rebuilding the entire index from scratch.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-save"></i> Database Persistence</h3>
+        <p>Save and load database to/from files for reuse across program executions.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-eye"></i> Visual Display</h3>
+        <p>Display entire database with words, file counts, and occurrence frequencies in each file.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-memory"></i> Memory Management</h3>
+        <p>Proper cleanup of all dynamically allocated memory to prevent leaks.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- HASH TABLE VISUALIZATION -->
+  <section class="section-card">
+    <h2>Hash Table Implementation</h2>
+    <p>The inverted index uses a hash table (size 101) with separate chaining for collision resolution:</p>
+    
+    <div class="hash-visual">
+      <div class="hash-row">
+        <div class="hash-index">Index 0</div>
+        <div class="hash-chain">
+          <div class="chain-node">word: "apple"</div>
+          <div class="chain-node">word: "cat"</div>
+        </div>
+      </div>
+      <div class="hash-row">
+        <div class="hash-index">Index 1</div>
+        <div class="hash-chain">
+          <div class="chain-node">word: "hello"</div>
+        </div>
+      </div>
+      <div class="hash-row">
+        <div class="hash-index">Index 2</div>
+        <div class="hash-chain">
+          <div class="chain-node">word: "world"</div>
+          <div class="chain-node">word: "test"</div>
+          <div class="chain-node">word: "sample"</div>
+        </div>
+      </div>
+      <div class="hash-row">
+        <div class="hash-index">...</div>
+        <div class="hash-chain">
+          <div class="chain-node">More words...</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DATA STRUCTURES -->
+  <section class="section-card">
+    <h2>Data Structures</h2>
+    
+    <table class="db-table">
+      <thead>
+        <tr>
+          <th>Structure</th>
+          <th>Purpose</th>
+          <th>Fields</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>main_node</strong></td>
+          <td>Stores word information and points to file list</td>
+          <td>word, filecount, main_link, sub_link</td>
+        </tr>
+        <tr>
+          <td><strong>sub_node</strong></td>
+          <td>Stores file information for each word</td>
+          <td>filename, wordcount, sub_link</td>
+        </tr>
+        <tr>
+          <td><strong>file_list</strong></td>
+          <td>Linked list of input files</td>
+          <td>filename, link</td>
+        </tr>
+        <tr>
+          <td><strong>Hash Table</strong></td>
+          <td>Array of main_node pointers (size 101)</td>
+          <td>database[TABLE_SIZE]</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- CODE ARCHITECTURE -->
+  <section class="section-card">
+    <h2>Code Architecture</h2>
+    
+    <div class="file-structure">
+      <h3>Modular File Structure</h3>
+      <div class="file-item">
+        <i class="fas fa-file"></i>
+        <span><strong>main.c</strong> - Program entry point, CLI interface, and menu system</span>
+      </div>
+      <div class="file-item">
+        <i class="fas fa-file-code"></i>
+        <span><strong>main.h</strong> - Header file with struct definitions and function prototypes</span>
+      </div>
+      <div class="file-item">
+        <i class="fas fa-database"></i>
+        <span><strong>invert.c</strong> - Core database operations (create, search, update, save, display)</span>
+      </div>
+      <div class="file-item">
+        <i class="fas fa-tools"></i>
+        <span><strong>assist.c</strong> - Helper functions (hashing, node creation, validation, cleanup)</span>
+      </div>
+    </div>
+
+    <div class="code-preview">
+      <span class="code-comment">// Hash function using multiplication method</span><br>
+      <span class="code-type">int</span> <span class="code-function">hash_function</span>(<span class="code-keyword">const</span> <span class="code-keyword">char</span> *word) {<br>
+      &nbsp;&nbsp;<span class="code-type">unsigned int</span> hash = <span class="code-string">0</span>;<br>
+      &nbsp;&nbsp;<span class="code-keyword">while</span>(*word) {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;hash = (hash * <span class="code-string">31</span> + *word) % TABLE_SIZE;<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;word++;<br>
+      &nbsp;&nbsp;}<br>
+      &nbsp;&nbsp;<span class="code-keyword">return</span> hash;<br>
+      }<br><br>
+      
+      <span class="code-comment">// Insert word into database</span><br>
+      <span class="code-type">int</span> <span class="code-function">insert_word</span>(<span class="code-type">main_node</span> *database[], <span class="code-keyword">const</span> <span class="code-keyword">char</span> *word, <br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">const</span> <span class="code-keyword">char</span> *filename) {<br>
+      &nbsp;&nbsp;<span class="code-type">int</span> index = <span class="code-function">hash_function</span>(word);<br>
+      &nbsp;&nbsp;<span class="code-type">main_node</span> *mnode = <span class="code-function">search_word</span>(database[index], word);<br>
+      &nbsp;&nbsp;<span class="code-comment">// ... insertion logic ...</span><br>
+      }
+    </div>
+  </section>
+
+  <!-- TECHNOLOGIES -->
+  <section class="section-card">
+    <h2>Technologies & Concepts</h2>
+    <div class="tech-tags">
+      <span>C Programming</span>
+      <span>Data Structures</span>
+      <span>Hash Tables</span>
+      <span>Separate Chaining</span>
+      <span>Linked Lists</span>
+      <span>File I/O</span>
+      <span>Text Processing</span>
+      <span>Search Algorithms</span>
+      <span>Dynamic Memory</span>
+      <span>Command Line Interface</span>
+      <span>Indexing</span>
+      <span>Information Retrieval</span>
+    </div>
+  </section>
+
+  <!-- CHALLENGES -->
+  <section class="section-card">
+    <h2>Key Challenges & Solutions</h2>
+    
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3><i class="fas fa-bolt"></i> Fast Search</h3>
+        <p>Challenge: Searching through all files for each word is O(n×m). Solution: Implemented hash table for O(1) average case lookup.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-project-diagram"></i> Complex Data Structure</h3>
+        <p>Challenge: Managing nested linked lists (hash table → main nodes → sub nodes). Solution: Careful pointer management and modular functions.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-edit"></i> Word Normalization</h3>
+        <p>Challenge: "Hello" and "hello" should be treated as same word. Solution: Convert all words to lowercase before processing.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPILATION -->
+  <section class="section-card">
+    <h2>Compilation & Usage</h2>
+    
+    <div class="code-preview">
+      <span class="code-comment"># Compile all source files</span><br>
+      gcc main.c invert.c assist.c -o inverted<br><br>
+      
+      <span class="code-comment"># Run with text files as arguments</span><br>
+      ./inverted file1.txt file2.txt file3.txt<br><br>
+      
+      <span class="code-comment"># Program Menu Options:</span><br>
+      1. Create Database - Build inverted index from input files<br>
+      2. Search Database - Find a word and its file occurrences<br>
+      3. Display Database - Show entire index<br>
+      4. Update Database - Add new file to existing index<br>
+      5. Save Database - Export index to file<br>
+      6. Exit - Cleanup and exit<br><br>
+      
+      <span class="code-comment"># Example workflow:</span><br>
+      <span class="prompt">$</span> ./inverted documents/*.txt<br>
+      <span class="prompt">Enter choice:</span> 1  <span class="code-comment"># Create database</span><br>
+      <span class="prompt">Enter choice:</span> 2  <span class="code-comment"># Search for "programming"</span><br>
+      <span class="prompt">Enter choice:</span> 5  <span class="code-comment"># Save to index.dat</span>
+    </div>
+  </section>
+
+  <!-- APPLICATIONS -->
+  <section class="section-card">
+    <h2>Real-World Applications</h2>
+    
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3><i class="fas fa-search"></i> Search Engines</h3>
+        <p>Core technology behind web search engines like Google, Bing, and DuckDuckGo.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-book"></i> Document Retrieval</h3>
+        <p>Used in libraries and digital archives to quickly find documents containing specific terms.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-code"></i> Code Search</h3>
+        <p>Basis for tools like grep that search through codebases for specific patterns or functions.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-database"></i> Database Indexing</h3>
+        <p>Similar to how databases create indexes on columns for fast query performance.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // Simple copy functionality for code blocks
+  document.addEventListener('DOMContentLoaded', function() {
+    const codeBlocks = document.querySelectorAll('.code-preview, .output-console');
+    
+    codeBlocks.forEach(block => {
+      block.addEventListener('click', function() {
+        const text = this.innerText;
+        navigator.clipboard.writeText(text).then(() => {
+          const original = this.innerHTML;
+          this.innerHTML = '<i class="fas fa-check"></i> Code copied to clipboard!';
+          setTimeout(() => {
+            this.innerHTML = original;
+          }, 2000);
+        });
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

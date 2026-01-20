@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lexical Analyzer | C Compiler Project</title>
+
+  <!-- MAIN SITE CSS -->
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    /* ================= PAGE LAYOUT ================= */
+    .project-container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 140px 20px 90px;
+    }
+
+    /* ================= HERO ================= */
+    .project-hero {
+      background: linear-gradient(
+        135deg,
+        rgba(30,64,175,0.12),
+        rgba(15,23,42,0.12)
+      );
+      border-radius: 26px;
+      padding: 60px 40px;
+      margin-bottom: 70px;
+      text-align: center;
+      box-shadow: 0 30px 65px rgba(0,0,0,0.15);
+    }
+
+    .project-hero h1 {
+      font-size: 3rem;
+      margin-bottom: 16px;
+    }
+
+    .project-hero p {
+      max-width: 780px;
+      margin: auto;
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      line-height: 1.8;
+    }
+
+    /* ================= SECTION CARD ================= */
+    .section-card {
+      background: var(--bg-card);
+      border-radius: 22px;
+      padding: 42px;
+      margin-bottom: 60px;
+      box-shadow: 0 18px 45px rgba(0,0,0,0.08);
+    }
+
+    .section-card h2 {
+      font-size: 1.9rem;
+      margin-bottom: 18px;
+    }
+
+    .section-card p {
+      color: var(--text-muted);
+      line-height: 1.8;
+      margin-bottom: 18px;
+    }
+
+    /* ================= CODE PREVIEW ================= */
+    .code-preview {
+      background: #1e1e1e;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 20px 0;
+      overflow-x: auto;
+      font-family: 'Courier New', monospace;
+    }
+
+    .code-preview pre {
+      margin: 0;
+      color: #d4d4d4;
+      line-height: 1.5;
+    }
+
+    .code-token {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin: 2px;
+      font-size: 0.9rem;
+    }
+
+    .token-keyword { background: #569cd6; color: white; }
+    .token-identifier { background: #9cdcfe; color: #000; }
+    .token-constant { background: #b5cea8; color: #000; }
+    .token-operator { background: #dcdcaa; color: #000; }
+    .token-special { background: #c586c0; color: white; }
+
+    /* ================= FEATURE GRID ================= */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-top: 30px;
+    }
+
+    .feature-card {
+      background: var(--bg-soft);
+      padding: 26px;
+      border-radius: 18px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+    }
+
+    .feature-card h3 {
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* ================= TOKEN TABLE ================= */
+    .token-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: var(--bg-soft);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .token-table th {
+      background: var(--accent);
+      color: white;
+      padding: 15px;
+      text-align: left;
+    }
+
+    .token-table td {
+      padding: 12px 15px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .token-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* ================= TECH TAGS ================= */
+    .tech-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .tech-tags span {
+      background: rgba(30,64,175,0.15);
+      color: var(--accent);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    /* ================= LINKS ================= */
+    .project-links {
+      margin-top: 28px;
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .github-btn, .demo-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 22px;
+      border-radius: 14px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: transform 0.2s ease;
+    }
+
+    .github-btn {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .github-btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+    }
+
+    .demo-btn {
+      background: var(--bg-soft);
+      color: var(--text-main);
+      border: 2px solid var(--accent);
+    }
+
+    .demo-btn:hover {
+      background: var(--accent);
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    /* ================= OUTPUT VISUALIZATION ================= */
+    .output-visual {
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      border-radius: 16px;
+      padding: 30px;
+      margin-top: 30px;
+      font-family: 'Courier New', monospace;
+    }
+
+    /* ================= ZOI QUICK ASSIST ================= */
+    #zoi-assist {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      display: flex;
+      align-items: flex-end;
+      gap: 14px;
+      z-index: 9999;
+    }
+
+    #zoi-assist img {
+      width: 62px;
+      height: 62px;
+      cursor: pointer;
+      border-radius: 50%;
+      background: #fff;
+      padding: 6px;
+      box-shadow: 0 14px 35px rgba(0,0,0,0.3);
+      transition: transform 0.25s ease;
+    }
+
+    #zoi-assist img:hover {
+      transform: translateY(-4px);
+    }
+
+    .zoi-bubble {
+      max-width: 280px;
+      background: var(--bg-card);
+      color: var(--text-main);
+      padding: 18px 20px;
+      border-radius: 18px 18px 4px 18px;
+      box-shadow: 0 20px 45px rgba(0,0,0,0.18);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    #zoi-assist.active .zoi-bubble {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .zoi-bubble strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ================= HEADER ================= -->
+<header>
+  <div class="nav-container">
+    <div class="logo">Krishna’s Portfolio</div>
+    <nav>
+      <ul>
+        <li><a href="../index.html#projects">← Back to Projects</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- ================= MAIN ================= -->
+<main class="project-container">
+
+  <!-- HERO -->
+  <section class="project-hero">
+    <div class="project-brand">
+      <div class="brand-icon">🔍</div>
+      <h1>
+        <span class="brand-main">C Lexical</span><span class="brand-accent"> Analyzer</span>
+      </h1>
+      <p class="brand-tagline">
+        Complete Tokenization Engine for C Source Code
+      </p>
+    </div>
+    <p>
+      A fully-featured lexical analyzer written in C that tokenizes C source code into keywords, 
+      identifiers, constants, operators, and special characters with comprehensive error handling.
+    </p>
+  </section>
+
+  <!-- VIDEO/DEMO -->
+  <section class="section-card project-video">
+    <h2>Lexical Analysis Demo</h2>
+    <div class="output-visual">
+      <pre style="color: #9cdcfe;">
+================================================================================
+                    LEXICAL ANALYSIS REPORT                    
+================================================================================
+Source File: lexical.c
+================================================================================
+
+LINE     | TOKEN                     | TYPE                
+---------|---------------------------|---------------------
+1        | #include                  | PREPROCESSOR        
+1        | <stdio.h>                 | HEADER              
+3        | int                       | KEYWORD             
+3        | main                      | IDENTIFIER          
+3        | (                         | SPECIAL CHARACTER   
+3        | )                         | SPECIAL CHARACTER   
+3        | {                         | SPECIAL CHARACTER   
+4        | int                       | KEYWORD             
+4        | a                         | IDENTIFIER          
+4        | =                         | OPERATOR            
+4        | 10                        | CONSTANT            
+4        | ;                         | SPECIAL CHARACTER   
+5        | float                     | KEYWORD             
+5        | b                         | IDENTIFIER          
+5        | =                         | OPERATOR            
+5        | 20.5                      | CONSTANT            
+5        | ;                         | SPECIAL CHARACTER   
+      </pre>
+    </div>
+
+    <div class="project-links">
+      <a href="https://github.com/Krishnavprem/Lexical-Analyser" target="_blank" class="github-btn">
+        <i class="fab fa-github"></i> View Full Code
+      </a>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="section-card" id="features">
+    <h2>Key Features</h2>
+    
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3><i class="fas fa-code"></i> Complete C Tokenization</h3>
+        <p>
+          Recognizes all C keywords, identifiers, constants (hex, octal, binary, float), 
+          operators, and special characters with 100% accuracy.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-bug"></i> Advanced Error Detection</h3>
+        <p>
+          Detects invalid constants, unterminated strings/chars, malformed numbers, 
+          and reports line numbers for easy debugging.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-comments"></i> Comment Handling</h3>
+        <p>
+          Smart handling of both single-line (//) and multi-line (/* */) comments, 
+          including detection of unterminated block comments.
+        </p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-bolt"></i> Multi-char Operators</h3>
+        <p>
+          Correctly tokenizes complex operators like ++, --, ==, !=, <=, >=, &&, ||, 
+          +=, -=, *=, /=, %=, ->, <<=, >>=, etc.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOKEN TYPES -->
+  <section class="section-card">
+    <h2>Supported Token Types</h2>
+    
+    <table class="token-table">
+      <thead>
+        <tr>
+          <th>Token Type</th>
+          <th>Examples</th>
+          <th>Detection Method</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>KEYWORD</strong></td>
+          <td>int, if, while, return, struct</td>
+          <td>String comparison against 32 keywords</td>
+        </tr>
+        <tr>
+          <td><strong>IDENTIFIER</strong></td>
+          <td>variable_name, func1, _temp</td>
+          <td>Regex: [a-zA-Z_][a-zA-Z0-9_]*</td>
+        </tr>
+        <tr>
+          <td><strong>CONSTANT</strong></td>
+          <td>123, 0xFF, 0755, 0b1010, 3.14e-10</td>
+          <td>State machine with validation</td>
+        </tr>
+        <tr>
+          <td><strong>OPERATOR</strong></td>
+          <td>+, -, *, /, ==, &&, +=, -></td>
+          <td>Lookup table with multi-char support</td>
+        </tr>
+        <tr>
+          <td><strong>SPECIAL CHARACTER</strong></td>
+          <td>{ } ( ) [ ] ; , .</td>
+          <td>Direct character comparison</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- CODE SNIPPET -->
+  <section class="section-card">
+    <h2>Core Implementation</h2>
+    
+    <div class="code-preview">
+      <pre><code><span style="color: #569cd6;">int</span> <span style="color: #dcdcaa;">is_constant</span>(<span style="color: #569cd6;">char</span> *token, <span style="color: #569cd6;">int</span> line_num) {
+    <span style="color: #569cd6;">int</span> len = <span style="color: #9cdcfe;">strlen</span>(token);
+    
+    <span style="color: #c586c0;">// Hexadecimal</span>
+    <span style="color: #569cd6;">if</span>(len > <span style="color: #b5cea8;">2</span> && token[<span style="color: #b5cea8;">0</span>] == <span style="color: #ce9178;">'0'</span> && (token[<span style="color: #b5cea8;">1</span>] == <span style="color: #ce9178;">'x'</span> || token[<span style="color: #b5cea8;">1</span>] == <span style="color: #ce9178;">'X'</span>)) {
+        <span style="color: #569cd6;">for</span>(<span style="color: #569cd6;">int</span> i = <span style="color: #b5cea8;">2</span>; i < len; i++) {
+            <span style="color: #569cd6;">if</span>(!<span style="color: #9cdcfe;">isxdigit</span>(token[i])) {
+                <span style="color: #9cdcfe;">printf</span>(<span style="color: #ce9178;">"ERROR: Invalid hex '%s'\n"</span>, token);
+                <span style="color: #569cd6;">return</span> FAILURE;
+            }
+        }
+        <span style="color: #569cd6;">return</span> CONSTANT;
+    }
+    
+    <span style="color: #c586c0;">// Floating point validation</span>
+    <span style="color: #569cd6;">int</span> decimal_count = <span style="color: #b5cea8;">0</span>;
+    <span style="color: #569cd6;">for</span>(<span style="color: #569cd6;">int</span> i = <span style="color: #b5cea8;">0</span>; i < len; i++) {
+        <span style="color: #569cd6;">if</span>(token[i] == <span style="color: #ce9178;">'.'</span>) decimal_count++;
+    }
+    <span style="color: #569cd6;">if</span>(decimal_count > <span style="color: #b5cea8;">1</span>) {
+        <span style="color: #9cdcfe;">printf</span>(<span style="color: #ce9178;">"ERROR: Multiple decimals\n"</span>);
+        <span style="color: #569cd6;">return</span> FAILURE;
+    }
+    
+    <span style="color: #569cd6;">return</span> CONSTANT;
+}</code></pre>
+    </div>
+  </section>
+
+  <!-- TECHNOLOGIES -->
+  <section class="section-card">
+    <h2>Technologies Used</h2>
+    <div class="tech-tags">
+      <span>C Programming</span>
+      <span>Lexical Analysis</span>
+      <span>Finite Automata</span>
+      <span>Regular Expressions</span>
+      <span>Compiler Design</span>
+      <span>File I/O</span>
+      <span>Error Handling</span>
+      <span>Makefile Build</span>
+    </div>
+  </section>
+
+</main>
+
+<!-- ================= ZOI ASSISTANT ================= -->
+<div id="zoi-assist">
+  <img src="../images/zoi/owl.png" alt="ZOI Assistant" onclick="toggleZoi()" />
+  <div class="zoi-bubble">
+    <strong>Lexical Analyzer — Quick Info</strong>
+    <p>
+      This is a complete lexical analyzer (scanner) for C language. It reads .c files,
+      tokenizes the source code into meaningful units, validates constants, handles
+      comments, and reports errors with line numbers. Perfect for learning compiler
+      design fundamentals.
+    </p>
+  </div>
+</div>
+
+<script>
+  // Toggle ZOI assistant
+  function toggleZoi() {
+    const zoi = document.getElementById('zoi-assist');
+    zoi.classList.toggle('active');
+  }
+
+  // Auto-hide ZOI after 10 seconds
+  setTimeout(() => {
+    document.getElementById('zoi-assist').classList.remove('active');
+  }, 10000);
+</script>
+
+</body>
+</html>

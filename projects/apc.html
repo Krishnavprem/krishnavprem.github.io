@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Arbitrary Precision Calculator | C Project</title>
+
+  <!-- MAIN SITE CSS -->
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    /* ================= PAGE LAYOUT ================= */
+    .project-container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 140px 20px 90px;
+    }
+
+    /* ================= HERO ================= */
+    .project-hero {
+      background: linear-gradient(
+        135deg,
+        rgba(30,64,175,0.12),
+        rgba(15,23,42,0.12)
+      );
+      border-radius: 26px;
+      padding: 60px 40px;
+      margin-bottom: 70px;
+      text-align: center;
+      box-shadow: 0 30px 65px rgba(0,0,0,0.15);
+    }
+
+    .project-hero h1 {
+      font-size: 3rem;
+      margin-bottom: 16px;
+    }
+
+    .project-hero p {
+      max-width: 780px;
+      margin: auto;
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      line-height: 1.8;
+    }
+
+    /* ================= SECTION CARD ================= */
+    .section-card {
+      background: var(--bg-card);
+      border-radius: 22px;
+      padding: 42px;
+      margin-bottom: 60px;
+      box-shadow: 0 18px 45px rgba(0,0,0,0.08);
+    }
+
+    .section-card h2 {
+      font-size: 1.9rem;
+      margin-bottom: 18px;
+    }
+
+    .section-card p {
+      color: var(--text-muted);
+      line-height: 1.8;
+      margin-bottom: 18px;
+    }
+
+    /* ================= FEATURE GRID ================= */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 24px;
+      margin-top: 30px;
+    }
+
+    .feature-card {
+      background: var(--bg-soft);
+      padding: 26px;
+      border-radius: 18px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+    }
+
+    .feature-card h3 {
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .feature-card h3 i {
+      color: var(--accent);
+    }
+
+    /* ================= CODE PREVIEW ================= */
+    .code-preview {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 25px;
+      border-radius: 14px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      overflow-x: auto;
+      margin: 20px 0;
+    }
+
+    .code-comment {
+      color: #64748b;
+    }
+
+    .code-keyword {
+      color: #60a5fa;
+    }
+
+    .code-function {
+      color: #34d399;
+    }
+
+    .code-string {
+      color: #fbbf24;
+    }
+
+    .code-type {
+      color: #c084fc;
+    }
+
+    /* ================= FILE STRUCTURE ================= */
+    .file-structure {
+      background: var(--bg-soft);
+      padding: 24px;
+      border-radius: 14px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 8px 0;
+      padding: 8px 12px;
+      background: var(--bg-card);
+      border-radius: 8px;
+    }
+
+    .file-item i {
+      color: var(--accent);
+    }
+
+    /* ================= TECH TAGS ================= */
+    .tech-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .tech-tags span {
+      background: rgba(30,64,175,0.15);
+      color: var(--accent);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    /* ================= LINKS ================= */
+    .project-links {
+      margin-top: 28px;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .github-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--accent);
+      color: #fff;
+      padding: 14px 22px;
+      border-radius: 14px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: transform 0.2s ease, background 0.3s ease;
+    }
+
+    .github-btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+    }
+
+    .demo-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-soft);
+      color: var(--text-main);
+      padding: 14px 22px;
+      border-radius: 14px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: transform 0.2s ease, background 0.3s ease;
+    }
+
+    .demo-btn:hover {
+      background: var(--bg-card);
+      transform: translateY(-2px);
+    }
+
+    /* ================= OPERATION TABLE ================= */
+    .operation-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+
+    .operation-table th {
+      background: var(--bg-soft);
+      padding: 14px;
+      text-align: left;
+      font-weight: 600;
+    }
+
+    .operation-table td {
+      padding: 14px;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .operation-table tr:hover {
+      background: var(--bg-soft);
+    }
+
+    /* ================= OUTPUT CONSOLE ================= */
+    .output-console {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 25px;
+      border-radius: 14px;
+      font-family: 'Courier New', monospace;
+      margin: 20px 0;
+      overflow-x: auto;
+    }
+
+    .output-console .prompt {
+      color: #34d399;
+    }
+
+    .output-console .result {
+      color: #60a5fa;
+    }
+
+    /* ================= LIST VISUALIZATION ================= */
+    .list-visual {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 30px 0;
+      padding: 20px;
+      background: var(--bg-soft);
+      border-radius: 12px;
+    }
+
+    .list-node {
+      width: 50px;
+      height: 50px;
+      background: var(--accent);
+      color: white;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      position: relative;
+    }
+
+    .list-node .node-label {
+      font-size: 0.7rem;
+      opacity: 0.8;
+    }
+
+    .list-arrow {
+      color: var(--text-muted);
+      margin: 0 5px;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ================= HEADER ================= -->
+<header>
+  <div class="nav-container">
+    <div class="logo">Krishna's Portfolio</div>
+    <nav>
+      <ul>
+        <li><a href="../index.html#projects">← Back to Projects</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- ================= MAIN ================= -->
+<main class="project-container">
+
+  <!-- HERO -->
+  <section class="project-hero">
+    <h1>Arbitrary Precision Calculator</h1>
+    <p>
+      A C-based calculator that performs arithmetic operations on integers of unlimited size using 
+      doubly linked list data structures. Implements manual addition, subtraction, multiplication, 
+      and division algorithms that handle numbers beyond standard data type limits.
+    </p>
+  </section>
+
+  <!-- DEMO & LINKS -->
+  <section class="section-card">
+    <h2>Project Demo</h2>
+    <div class="tech-tags">
+      <span>C Programming</span>
+      <span>Data Structures</span>
+      <span>Doubly Linked Lists</span>
+      <span>Big Integer Arithmetic</span>
+      <span>Dynamic Memory</span>
+      <span>Algorithm Design</span>
+    </div>
+    
+    <div class="output-console">
+      <span class="prompt">$</span> ./apc 123456789012345678901234567890 + 987654321098765432109876543210<br>
+      <span class="result">1111111110111111111011111111100</span><br><br>
+      
+      <span class="prompt">$</span> ./apc -999999999999999999999999999999 - 1<br>
+      <span class="result">-1000000000000000000000000000000</span><br><br>
+      
+      <span class="prompt">$</span> ./apc 123456789012345678901234567890 x 987654321098765432109876543210<br>
+      <span class="result">121932631246761163359244016492372593201762678946619600100</span><br><br>
+      
+      <span class="prompt">$</span> ./apc 1000000000000000000000000000000 / 250000000000000000000000000000<br>
+      <span class="result">4</span>
+    </div>
+    
+    <div class="project-links">
+      <a href="https://github.com/Krishnavprem/Arbitrary-Precision-Calculator" target="_blank" class="github-btn">
+        <i class="fab fa-github"></i> View Source Code
+      </a>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="section-card">
+    <h2>Core Features</h2>
+    
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3><i class="fas fa-plus"></i> Unlimited Precision</h3>
+        <p>Handles numbers of any size by storing digits in doubly linked lists, breaking 64-bit integer limits.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-exchange-alt"></i> Four Operations</h3>
+        <p>Supports addition, subtraction, multiplication, and division with proper sign handling and edge cases.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-sort-numeric-down"></i> Grade-School Algorithms</h3>
+        <p>Implements manual arithmetic algorithms digit-by-digit with carry/borrow propagation.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-link"></i> Doubly Linked Lists</h3>
+        <p>Uses custom DLL implementation for efficient bidirectional traversal during arithmetic operations.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-minus-circle"></i> Negative Number Support</h3>
+        <p>Properly handles negative operands and calculates correct sign for all operations.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-broom"></i> Zero Elimination</h3>
+        <p>Automatically removes leading zeros from results for clean output formatting.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- OPERATIONS -->
+  <section class="section-card">
+    <h2>Arithmetic Operations</h2>
+    
+    <table class="operation-table">
+      <thead>
+        <tr>
+          <th>Operation</th>
+          <th>Algorithm</th>
+          <th>Complexity</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Addition</strong></td>
+          <td>• Start from least significant digit (tail)<br>• Add digits with carry propagation<br>• Create new nodes for result</td>
+          <td>O(max(n,m))</td>
+        </tr>
+        <tr>
+          <td><strong>Subtraction</strong></td>
+          <td>• Compare numbers to determine larger<br>• Subtract digit-by-digit with borrow<br>• Handle negative results</td>
+          <td>O(max(n,m))</td>
+        </tr>
+        <tr>
+          <td><strong>Multiplication</strong></td>
+          <td>• Grade-school multiplication algorithm<br>• Partial products with shifting<br>• Sum partial results</td>
+          <td>O(n×m)</td>
+        </tr>
+        <tr>
+          <td><strong>Division</strong></td>
+          <td>• Long division using repeated subtraction<br>• Compare divisor with dividend segments<br>• Calculate quotient digit-by-digit</td>
+          <td>O(n×m)</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- DATA STRUCTURE VISUALIZATION -->
+  <section class="section-card">
+    <h2>Data Structure Visualization</h2>
+    <p>Numbers are stored as doubly linked lists where each node contains one digit:</p>
+    
+    <div class="list-visual">
+      <span>Number: 12345 →</span>
+      <div class="list-node">
+        <div>1</div>
+        <div class="node-label">head</div>
+      </div>
+      <span class="list-arrow">⇄</span>
+      <div class="list-node">
+        <div>2</div>
+        <div class="node-label">prev/next</div>
+      </div>
+      <span class="list-arrow">⇄</span>
+      <div class="list-node">
+        <div>3</div>
+        <div class="node-label">prev/next</div>
+      </div>
+      <span class="list-arrow">⇄</span>
+      <div class="list-node">
+        <div>4</div>
+        <div class="node-label">prev/next</div>
+      </div>
+      <span class="list-arrow">⇄</span>
+      <div class="list-node">
+        <div>5</div>
+        <div class="node-label">tail</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CODE ARCHITECTURE -->
+  <section class="section-card">
+    <h2>Code Architecture</h2>
+    
+    <div class="file-structure">
+      <h3>Modular File Structure</h3>
+      <div class="file-item">
+        <i class="fas fa-file"></i>
+        <span><strong>main.c</strong> - Program entry point, argument parsing, and operation routing</span>
+      </div>
+      <div class="file-item">
+        <i class="fas fa-file-code"></i>
+        <span><strong>main.h</strong> - Header file with struct definitions and function prototypes</span>
+      </div>
+      <div class="file-item">
+        <i class="fas fa-calculator"></i>
+        <span><strong>operations.c</strong> - Core arithmetic algorithms (add, subtract, multiply, divide)</span>
+      </div>
+      <div class="file-item">
+        <i class="fas fa-tools"></i>
+        <span><strong>helper.c</strong> - Utility functions for list operations and comparisons</span>
+      </div>
+    </div>
+
+    <div class="code-preview">
+      <span class="code-comment">// Core data structure: Doubly Linked List Node</span><br>
+      <span class="code-keyword">typedef</span> <span class="code-keyword">struct</span> node {<br>
+      &nbsp;&nbsp;<span class="code-keyword">int</span> data;<br>
+      &nbsp;&nbsp;<span class="code-keyword">struct</span> node* prev;<br>
+      &nbsp;&nbsp;<span class="code-keyword">struct</span> node *next;<br>
+      } <span class="code-type">DLL</span>;<br><br>
+      
+      <span class="code-comment">// Addition function prototype</span><br>
+      <span class="code-type">int</span> <span class="code-function">add</span>(<span class="code-type">DLL</span> **head1, <span class="code-type">DLL</span> **tail1, <span class="code-type">DLL</span> **head2, <span class="code-type">DLL</span> **tail2,<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-type">DLL</span> **head3, <span class="code-type">DLL</span> **tail3);<br><br>
+      
+      <span class="code-comment">// Convert string to doubly linked list</span><br>
+      <span class="code-type">int</span> <span class="code-function">string_to_list</span>(<span class="code-keyword">const</span> <span class="code-keyword">char</span> *str, <span class="code-type">DLL</span> **head, <span class="code-type">DLL</span> **tail);
+    </div>
+  </section>
+
+  <!-- TECHNOLOGIES -->
+  <section class="section-card">
+    <h2>Technologies & Concepts</h2>
+    <div class="tech-tags">
+      <span>C Programming</span>
+      <span>Data Structures</span>
+      <span>Doubly Linked Lists</span>
+      <span>Dynamic Memory Allocation</span>
+      <span>Big Integer Arithmetic</span>
+      <span>Algorithm Design</span>
+      <span>Manual Arithmetic</span>
+      <span>Carry Propagation</span>
+      <span>Borrow Handling</span>
+      <span>Grade-School Algorithms</span>
+      <span>Command Line Interface</span>
+      <span>Error Handling</span>
+    </div>
+  </section>
+
+  <!-- CHALLENGES -->
+  <section class="section-card">
+    <h2>Key Challenges & Solutions</h2>
+    
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3><i class="fas fa-infinity"></i> Unlimited Size</h3>
+        <p>Challenge: Standard data types limit number size. Solution: Used doubly linked lists to store digits dynamically.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-long-arrow-alt-right"></i> Bidirectional Operations</h3>
+        <p>Challenge: Arithmetic needs both forward and backward traversal. Solution: Implemented DLL for efficient bidirectional access.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-cogs"></i> Carry/Borrow Propagation</h3>
+        <p>Challenge: Handling carry in addition and borrow in subtraction across thousands of digits. Solution: Implemented manual propagation algorithms.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPILATION -->
+  <section class="section-card">
+    <h2>Compilation & Usage</h2>
+    
+    <div class="code-preview">
+      <span class="code-comment"># Compile all source files</span><br>
+      gcc main.c operations.c helper.c -o apc<br><br>
+      
+      <span class="code-comment"># Run the calculator with arguments: number1 operator number2</span><br>
+      ./apc 123456789012345678901234567890 + 987654321098765432109876543210<br><br>
+      
+      <span class="code-comment"># Available operators:</span><br>
+      <span class="code-string">+</span>  <span class="code-comment">Addition</span><br>
+      <span class="code-string">-</span>  <span class="code-comment">Subtraction</span><br>
+      <span class="code-string">x</span>  <span class="code-comment">Multiplication</span><br>
+      <span class="code-string">/</span>  <span class="code-comment">Division</span><br><br>
+      
+      <span class="code-comment"># Examples with negative numbers:</span><br>
+      ./apc -123 + 456<br>
+      ./apc 999 - -100
+    </div>
+  </section>
+
+  <!-- SAMPLE OUTPUT -->
+  <section class="section-card">
+    <h2>Sample Output</h2>
+    
+    <div class="output-console">
+      <span class="prompt">$</span> ./apc 123456789012345678901234567890 x 987654321098765432109876543210<br>
+      ===============================================<br>
+      <span class="result">121932631246761163359244016492372593201762678946619600100</span><br>
+      ===============================================<br>
+      <span class="code-comment"># 60-digit number × 60-digit number = 120-digit result</span><br><br>
+      
+      <span class="prompt">$</span> ./apc 1000000000000000000000000000000000000000000000000000000000000 / 5<br>
+      ===============================================<br>
+      <span class="result">200000000000000000000000000000000000000000000000000000000000</span><br>
+      ===============================================<br>
+      <span class="code-comment"># Division of extremely large number</span>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // Simple copy functionality for code blocks
+  document.addEventListener('DOMContentLoaded', function() {
+    const codeBlocks = document.querySelectorAll('.code-preview, .output-console');
+    
+    codeBlocks.forEach(block => {
+      block.addEventListener('click', function() {
+        const text = this.innerText;
+        navigator.clipboard.writeText(text).then(() => {
+          const original = this.innerHTML;
+          this.innerHTML = '<i class="fas fa-check"></i> Code copied to clipboard!';
+          setTimeout(() => {
+            this.innerHTML = original;
+          }, 2000);
+        });
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
