@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Source Code to HTML Converter | C Project</title>
+
+  <!-- MAIN SITE CSS -->
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    /* ================= PAGE LAYOUT ================= */
+    .project-container {
+      max-width: 1100px;
+      margin: auto;
+      padding: 140px 20px 90px;
+    }
+
+    /* ================= HERO ================= */
+    .project-hero {
+      background: linear-gradient(
+        135deg,
+        rgba(123, 97, 255, 0.12),
+        rgba(195, 65, 255, 0.12)
+      );
+      border-radius: 26px;
+      padding: 60px 40px;
+      margin-bottom: 70px;
+      text-align: center;
+      box-shadow: 0 30px 65px rgba(0,0,0,0.15);
+    }
+
+    .project-hero h1 {
+      font-size: 3rem;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #7b61ff, #c341ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .project-hero p {
+      max-width: 780px;
+      margin: auto;
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      line-height: 1.8;
+    }
+
+    /* ================= SECTION CARD ================= */
+    .section-card {
+      background: var(--bg-card);
+      border-radius: 22px;
+      padding: 42px;
+      margin-bottom: 60px;
+      box-shadow: 0 18px 45px rgba(0,0,0,0.08);
+    }
+
+    .section-card h2 {
+      font-size: 1.9rem;
+      margin-bottom: 18px;
+      color: #7b61ff;
+    }
+
+    .section-card p {
+      color: var(--text-muted);
+      line-height: 1.8;
+      margin-bottom: 18px;
+    }
+
+    /* ================= FEATURE GRID ================= */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-top: 30px;
+    }
+
+    .feature-card {
+      background: var(--bg-soft);
+      padding: 26px;
+      border-radius: 18px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border-left: 4px solid #7b61ff;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 40px rgba(123, 97, 255, 0.15);
+    }
+
+    .feature-card h3 {
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #7b61ff;
+    }
+
+    .feature-card h3 i {
+      color: #c341ff;
+    }
+
+    /* ================= CODE PREVIEW ================= */
+    .code-preview {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 25px;
+      border-radius: 14px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      overflow-x: auto;
+      margin: 20px 0;
+    }
+
+    .code-comment {
+      color: #64748b;
+    }
+
+    .code-keyword {
+      color: #60a5fa;
+    }
+
+    .code-function {
+      color: #34d399;
+    }
+
+    .code-string {
+      color: #fbbf24;
+    }
+
+    .code-type {
+      color: #c084fc;
+    }
+
+    .code-include {
+      color: #f472b6;
+    }
+
+    .code-preprocessor {
+      color: #f87171;
+    }
+
+    .code-reserved {
+      color: #4ade80;
+    }
+
+    /* ================= DATA STRUCTURE VISUALIZATION ================= */
+    .ds-visual {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 30px 0;
+      padding: 20px;
+      background: var(--bg-soft);
+      border-radius: 14px;
+    }
+
+    .node-box {
+      width: 200px;
+      background: var(--bg-card);
+      border-radius: 10px;
+      padding: 15px;
+      margin: 0 15px;
+      text-align: center;
+      border: 2px solid #7b61ff;
+      box-shadow: 0 8px 20px rgba(123, 97, 255, 0.1);
+    }
+
+    .node-box .node-header {
+      background: linear-gradient(135deg, #7b61ff, #c341ff);
+      color: white;
+      padding: 8px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    .arrow {
+      font-size: 2rem;
+      color: #7b61ff;
+      margin: 0 10px;
+    }
+
+    /* ================= FILE STRUCTURE ================= */
+    .file-structure {
+      background: var(--bg-soft);
+      padding: 24px;
+      border-radius: 14px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 8px 0;
+      padding: 8px 12px;
+      background: var(--bg-card);
+      border-radius: 8px;
+    }
+
+    .file-item i {
+      color: #7b61ff;
+    }
+
+    /* ================= TECH TAGS ================= */
+    .tech-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .tech-tags span {
+      background: rgba(123, 97, 255, 0.15);
+      color: #7b61ff;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    /* ================= TERMINAL DEMO ================= */
+    .terminal-demo {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 25px;
+      border-radius: 14px;
+      font-family: 'Monaco', 'Consolas', monospace;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      overflow-x: auto;
+      margin: 20px 0;
+    }
+
+    .terminal-prompt {
+      color: #4ade80;
+    }
+
+    .terminal-command {
+      color: #60a5fa;
+    }
+
+    .terminal-output {
+      color: #e2e8f0;
+    }
+
+    .terminal-highlight {
+      color: #fbbf24;
+    }
+
+    /* ================= COMMAND TABLE ================= */
+    .command-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+
+    .command-table th {
+      background: rgba(123, 97, 255, 0.1);
+      padding: 14px;
+      text-align: left;
+      font-weight: 600;
+    }
+
+    .command-table td {
+      padding: 14px;
+      border-bottom: 1px solid rgba(123, 97, 255, 0.1);
+    }
+
+    .command-table tr:hover {
+      background: rgba(123, 97, 255, 0.05);
+    }
+
+    /* ================= LINKS ================= */
+    .project-links {
+      margin-top: 28px;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .github-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #7b61ff, #c341ff);
+      color: #fff;
+      padding: 14px 22px;
+      border-radius: 14px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: transform 0.2s ease, opacity 0.3s ease;
+    }
+
+    .github-btn:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+
+    /* ================= MODULAR ARCHITECTURE ================= */
+    .module-architecture {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin: 30px 0;
+    }
+
+    .module-card {
+      background: var(--bg-soft);
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .module-card:hover {
+      border-color: #7b61ff;
+      transform: translateY(-4px);
+    }
+
+    .module-card i {
+      font-size: 2rem;
+      color: #7b61ff;
+      margin-bottom: 10px;
+    }
+
+    /* ================= COLOR LEGEND ================= */
+    .color-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin: 20px 0;
+    }
+
+    .color-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .color-box {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+    }
+
+    /* ================= EXAMPLE COMPARISON ================= */
+    .comparison-container {
+      display: flex;
+      gap: 20px;
+      margin: 30px 0;
+    }
+
+    .comparison-box {
+      flex: 1;
+      background: var(--bg-soft);
+      padding: 20px;
+      border-radius: 12px;
+    }
+
+    .comparison-box h4 {
+      margin-bottom: 15px;
+      color: #7b61ff;
+    }
+
+    /* ================= WORKFLOW VISUALIZATION ================= */
+    .workflow-visual {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      margin: 30px 0;
+    }
+
+    .workflow-step {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      width: 100%;
+    }
+
+    .step-number {
+      background: #7b61ff;
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+
+    .step-content {
+      flex: 1;
+      background: var(--bg-soft);
+      padding: 15px;
+      border-radius: 10px;
+    }
+
+    /* ================= STATE MACHINE VISUALIZATION ================= */
+    .state-machine {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+      margin: 30px 0;
+    }
+
+    .state-card {
+      background: var(--bg-soft);
+      padding: 15px;
+      border-radius: 10px;
+      border-left: 4px solid #7b61ff;
+    }
+
+    .state-card.active {
+      background: rgba(123, 97, 255, 0.1);
+    }
+
+    /* ================= RESPONSIVE ================= */
+    @media (max-width: 768px) {
+      .ds-visual {
+        flex-direction: column;
+      }
+      
+      .node-box {
+        margin: 10px 0;
+      }
+      
+      .arrow {
+        transform: rotate(90deg);
+        margin: 10px 0;
+      }
+      
+      .command-table {
+        display: block;
+        overflow-x: auto;
+      }
+      
+      .comparison-container {
+        flex-direction: column;
+      }
+      
+      .workflow-step {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ================= HEADER ================= -->
+<header>
+  <div class="nav-container">
+    <div class="logo">Portfolio | Source-to-HTML Converter</div>
+    <nav>
+      <ul>
+        <li><a href="../index.html#projects">← Back to Projects</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- ================= MAIN ================= -->
+<main class="project-container">
+
+  <!-- HERO -->
+  <section class="project-hero">
+    <h1>Source Code to HTML Converter</h1>
+    <p>
+      A sophisticated C-based parser that converts C source code into beautifully syntax-highlighted HTML. 
+      Implements a finite state machine for lexical analysis with intelligent detection of preprocessor directives, 
+      comments, strings, keywords, and numeric constants.
+    </p>
+  </section>
+
+  <!-- DEMO & LINKS -->
+  <section class="section-card">
+    <h2>Interactive Demo & Links</h2>
+    <div class="tech-tags">
+      <span>C Programming</span>
+      <span>Lexical Analysis</span>
+      <span>Finite State Machine</span>
+      <span>HTML Generation</span>
+      <span>Syntax Highlighting</span>
+      <span>CSS Styling</span>
+      <span>Parser Design</span>
+    </div>
+    
+    <div class="terminal-demo">
+      <span class="terminal-prompt">$</span> <span class="terminal-command">./sode2html test.c</span><br><br>
+      
+      <span class="terminal-output">===========================================</span><br>
+      <span class="terminal-output">     SOURCE-TO-HTML CONVERTER v1.0         </span><br>
+      <span class="terminal-output">===========================================</span><br><br>
+      
+      <span class="terminal-output">Parsing file: test.c</span><br>
+      <span class="terminal-output">Detected elements:</span><br>
+      <span class="terminal-output">  • Preprocessor directives: 1</span><br>
+      <span class="terminal-output">  • Multi-line comments: 1 (3 lines)</span><br>
+      <span class="terminal-output">  • Single-line comments: 1</span><br>
+      <span class="terminal-output">  • Reserved keywords: 12</span><br>
+      <span class="terminal-output">  • Strings: 2</span><br>
+      <span class="terminal-output">  • Numeric constants: 5</span><br>
+      <span class="terminal-output">  • ASCII characters: 1</span><br><br>
+      
+      <span class="terminal-output">Generating HTML: test.c.html</span><br>
+      <span class="terminal-output">Applying CSS styles...</span><br>
+      <span class="terminal-output">Output file test.c.html generated successfully!</span><br><br>
+      
+      <span class="terminal-output">View in browser:</span><br>
+      <span class="terminal-command">open test.c.html</span>
+    </div>
+    
+    <div class="project-links">
+      <a href="#" class="github-btn">
+        <i class="fab fa-github"></i> View Source Code
+      </a>
+      <a href="test.c.html" target="_blank" class="github-btn" style="background: linear-gradient(135deg, #10b981, #059669);">
+        <i class="fas fa-eye"></i> View Sample Output
+      </a>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="section-card">
+    <h2>Core Features</h2>
+    
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3><i class="fas fa-code"></i> Syntax Highlighting</h3>
+        <p>Intelligent detection and coloring of C language elements with CSS classes for full customization.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-cogs"></i> Finite State Machine</h3>
+        <p>Robust parser using 12 different states for accurate lexical analysis of C source code.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-palette"></i> CSS Styling</h3>
+        <p>Customizable CSS stylesheet with distinct colors for each syntax element type.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-file-code"></i> Multi-File Support</h3>
+        <p>Process multiple C source files with automatic HTML generation and styling.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-search"></i> Smart Detection</h3>
+        <p>Accurate identification of comments (single/multi-line), strings, headers, and numeric constants.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-memory"></i> Efficient Parsing</h3>
+        <p>Character-by-character parsing with minimal memory footprint and optimized state transitions.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SYNTAX COLOR LEGEND -->
+  <section class="section-card">
+    <h2>Syntax Highlighting Colors</h2>
+    
+    <div class="color-legend">
+      <div class="color-item">
+        <div class="color-box" style="background: green;"></div>
+        <span>Data Type Keywords (const, int, float)</span>
+      </div>
+      <div class="color-item">
+        <div class="color-box" style="background: goldenrod;"></div>
+        <span>Control Keywords (if, for, return)</span>
+      </div>
+      <div class="color-item">
+        <div class="color-box" style="background: blue;"></div>
+        <span>Comments (// and /* */)</span>
+      </div>
+      <div class="color-item">
+        <div class="color-box" style="background: purple;"></div>
+        <span>Preprocessor Directives (#include)</span>
+      </div>
+      <div class="color-item">
+        <div class="color-box" style="background: red;"></div>
+        <span>Header Files (&lt;stdio.h&gt; or "file.h")</span>
+      </div>
+      <div class="color-item">
+        <div class="color-box" style="background: magenta;"></div>
+        <span>String Literals ("text")</span>
+      </div>
+      <div class="color-item">
+        <div class="color-box" style="background: brown;"></div>
+        <span>Numeric Constants (42, 3.14)</span>
+      </div>
+      <div class="color-item">
+        <div class="color-box" style="background: firebrick;"></div>
+        <span>ASCII Characters ('A', '\n')</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXAMPLE COMPARISON -->
+  <section class="section-card">
+    <h2>Input/Output Example</h2>
+    
+    <div class="comparison-container">
+      <div class="comparison-box">
+        <h4>Input C Source (test.c)</h4>
+        <div class="code-preview" style="font-size: 0.85rem;">
+<span class="code-preprocessor">#include</span> <span class="code-string">&lt;stdio.h&gt;</span>
+
+<span class="code-comment">/* Multi-line comment
+   with multiple lines
+   to test */</span>
+
+<span class="code-comment">// Single line comment</span>
+
+<span class="code-reserved">int</span> <span class="code-function">main</span>() {
+    <span class="code-reserved">int</span> x = <span class="code-string">42</span>;
+    <span class="code-reserved">float</span> pi = <span class="code-string">3.14</span>;
+    <span class="code-reserved">char</span> letter = <span class="code-string">'A'</span>;
+    <span class="code-reserved">char</span> *str = <span class="code-string">"Hello World!"</span>;
+    
+    <span class="code-reserved">if</span> (x &gt; <span class="code-string">0</span>) {
+        printf(<span class="code-string">"Number is positive\n"</span>);
+    }
+    
+    <span class="code-keyword">return</span> <span class="code-string">0</span>;
+}
+        </div>
+      </div>
+      
+      <div class="comparison-box">
+        <h4>Generated HTML Output</h4>
+        <div class="code-preview" style="font-size: 0.85rem;">
+&lt;!DOCTYPE html&gt;
+&lt;html lang="en-US"&gt;
+&lt;head&gt;
+&lt;title&gt;sode2html&lt;/title&gt;
+&lt;link rel="stylesheet" href="styles.css"&gt;
+&lt;/head&gt;
+&lt;body style="background-color:lightgrey;"&gt;
+&lt;pre&gt;
+&lt;span class="preprocess_dir"&gt;#include  &lt;/span&gt;
+&lt;span class="header_file"&gt;&amp;lt;stdio.h&amp;gt;&lt;/span&gt;
+
+&lt;span class="comment"&gt;/* Multi-line comment
+   with multiple lines
+   to test */&lt;/span&gt;
+
+&lt;span class="comment"&gt;// Single line comment&lt;/span&gt;
+
+&lt;span class="reserved_key1"&gt;int&lt;/span&gt; main() {
+    &lt;span class="reserved_key1"&gt;int&lt;/span&gt; x = &lt;span class="numeric_constant"&gt;42&lt;/span&gt;;
+    &lt;span class="reserved_key1"&gt;float&lt;/span&gt; pi = &lt;span class="numeric_constant"&gt;3.14&lt;/span&gt;;
+    &lt;span class="reserved_key1"&gt;char&lt;/span&gt; letter = &lt;span class="ascii_char"&gt;'A'&lt;/span&gt;;
+    &lt;span class="reserved_key1"&gt;char&lt;/span&gt; *str = &lt;span class="string"&gt;"Hello World!"&lt;/span&gt;;
+    
+    &lt;span class="reserved_key2"&gt;if&lt;/span&gt; (x &gt; &lt;span class="numeric_constant"&gt;0&lt;/span&gt;) {
+        printf(&lt;span class="string"&gt;"Number is positive\n"&lt;/span&gt;);
+    }
+    
+    &lt;span class="reserved_key2"&gt;return&lt;/span&gt; &lt;span class="numeric_constant"&gt;0&lt;/span&gt;;
+}
+&lt;/pre&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARCHITECTURE & DATA STRUCTURES -->
+  <section class="section-card">
+    <h2>Architecture & Data Structures</h2>
+    
+    <div class="ds-visual">
+      <div class="node-box">
+        <div class="node-header">Parser Event</div>
+        <div>• type (pevent_e)</div>
+        <div>• property</div>
+        <div>• length</div>
+        <div>• data[1024]</div>
+      </div>
+      
+      <div class="arrow">↔</div>
+      
+      <div class="node-box">
+        <div class="node-header">State Machine</div>
+        <div>• 12 parser states</div>
+        <div>• Character handlers</div>
+        <div>• Event generation</div>
+        <div>• Sub-states</div>
+      </div>
+      
+      <div class="arrow">→</div>
+      
+      <div class="node-box">
+        <div class="node-header">HTML Generator</div>
+        <div>• CSS class mapping</div>
+        <div>• HTML tag insertion</div>
+        <div>• File I/O handling</div>
+      </div>
+    </div>
+    
+    <div class="code-preview">
+      <span class="code-comment">// Core data structures</span><br>
+      <span class="code-keyword">typedef enum</span> {<br>
+      &nbsp;&nbsp;PEVENT_PREPROCESSOR_DIRECTIVE,<br>
+      &nbsp;&nbsp;PEVENT_RESERVE_KEYWORD,<br>
+      &nbsp;&nbsp;PEVENT_NUMERIC_CONSTANT,<br>
+      &nbsp;&nbsp;PEVENT_STRING,<br>
+      &nbsp;&nbsp;PEVENT_HEADER_FILE,<br>
+      &nbsp;&nbsp;PEVENT_REGULAR_EXP,<br>
+      &nbsp;&nbsp;PEVENT_SINGLE_LINE_COMMENT,<br>
+      &nbsp;&nbsp;PEVENT_MULTI_LINE_COMMENT,<br>
+      &nbsp;&nbsp;PEVENT_ASCII_CHAR,<br>
+      &nbsp;&nbsp;PEVENT_EOF<br>
+      } <span class="code-type">pevent_e</span>;<br><br>
+      
+      <span class="code-keyword">typedef struct</span> {<br>
+      &nbsp;&nbsp;<span class="code-type">pevent_e</span> type;<br>
+      &nbsp;&nbsp;<span class="code-keyword">int</span> property;<br>
+      &nbsp;&nbsp;<span class="code-keyword">int</span> length;<br>
+      &nbsp;&nbsp;<span class="code-keyword">char</span> data[PEVENT_DATA_SIZE];<br>
+      } <span class="code-type">pevent_t</span>;<br><br>
+      
+      <span class="code-keyword">typedef enum</span> {<br>
+      &nbsp;&nbsp;PSTATE_IDLE,<br>
+      &nbsp;&nbsp;PSTATE_PREPROCESSOR_DIRECTIVE,<br>
+      &nbsp;&nbsp;PSTATE_HEADER_FILE,<br>
+      &nbsp;&nbsp;PSTATE_RESERVE_KEYWORD,<br>
+      &nbsp;&nbsp;PSTATE_NUMERIC_CONSTANT,<br>
+      &nbsp;&nbsp;PSTATE_STRING,<br>
+      &nbsp;&nbsp;PSTATE_SINGLE_LINE_COMMENT,<br>
+      &nbsp;&nbsp;PSTATE_MULTI_LINE_COMMENT,<br>
+      &nbsp;&nbsp;PSTATE_ASCII_CHAR<br>
+      } <span class="code-type">pstate_e</span>;
+    </div>
+  </section>
+
+  <!-- STATE MACHINE VISUALIZATION -->
+  <section class="section-card">
+    <h2>Parser State Machine</h2>
+    
+    <div class="state-machine">
+      <div class="state-card active">
+        <h4>PSTATE_IDLE</h4>
+        <p>Initial state, detects special characters to transition to other states.</p>
+      </div>
+      
+      <div class="state-card">
+        <h4>PSTATE_PREPROCESSOR_DIRECTIVE</h4>
+        <p>Handles #include, #define, #ifdef directives.</p>
+      </div>
+      
+      <div class="state-card">
+        <h4>PSTATE_HEADER_FILE</h4>
+        <p>Processes &lt;header.h&gt; or "header.h" files.</p>
+      </div>
+      
+      <div class="state-card">
+        <h4>PSTATE_RESERVE_KEYWORD</h4>
+        <p>Identifies C keywords (int, if, return, etc.).</p>
+      </div>
+      
+      <div class="state-card">
+        <h4>PSTATE_NUMERIC_CONSTANT</h4>
+        <p>Parses numbers (42, 3.14, 0xFF, etc.).</p>
+      </div>
+      
+      <div class="state-card">
+        <h4>PSTATE_STRING</h4>
+        <p>Handles string literals with escape sequences.</p>
+      </div>
+      
+      <div class="state-card">
+        <h4>PSTATE_SINGLE_LINE_COMMENT</h4>
+        <p>Processes // comments until newline.</p>
+      </div>
+      
+      <div class="state-card">
+        <h4>PSTATE_MULTI_LINE_COMMENT</h4>
+        <p>Handles /* */ comments across multiple lines.</p>
+      </div>
+      
+      <div class="state-card">
+        <h4>PSTATE_ASCII_CHAR</h4>
+        <p>Parses character literals like 'A', '\n'.</p>
+      </div>
+    </div>
+    
+    <div class="workflow-visual">
+      <div class="workflow-step">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <strong>Character Reading:</strong> Read source file character by character in PSTATE_IDLE
+        </div>
+      </div>
+      
+      <div class="workflow-step">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <strong>State Transition:</strong> On special character (#, /, ", ', etc.), transition to appropriate state
+        </div>
+      </div>
+      
+      <div class="workflow-step">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <strong>Event Generation:</strong> State handler processes characters and generates parser events
+        </div>
+      </div>
+      
+      <div class="workflow-step">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <strong>HTML Conversion:</strong> Events are converted to HTML with appropriate CSS classes
+        </div>
+      </div>
+      
+      <div class="workflow-step">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <strong>File Output:</strong> Generated HTML written to output file with proper formatting
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FILE STRUCTURE -->
+  <section class="section-card">
+    <h2>Project File Structure</h2>
+    
+    <div class="file-structure">
+      <div class="file-item">
+        <i class="fas fa-folder"></i>
+        <span><strong>sode2html/</strong> - Project root</span>
+      </div>
+      <div class="file-item">
+        <i class="fas fa-file"></i>
+        <span><strong>s2html_main.c</strong> - Main program entry point</span>
+      </div>
+      <div class="file-item">
+        <i class="fas fa-file-code"></i>
+        <span><strong>s2html_event.h/c</strong> - Event definitions & parser</span>
+      </div>
+      <div class="file-item">
+        <i class="fas fa-file-code"></i>
+        <span><strong>s2html_conv.h/c</strong> - HTML conversion functions</span>
+      </div>
+      <div class="file-item">
+        <i class="fas fa-file-css"></i>
+        <span><strong>styles.css</strong> - Syntax highlighting styles</span>
+      </div>
+      <div class="file-item">
+        <i class="fas fa-file-alt"></i>
+        <span><strong>test.c</strong> - Sample C source for testing</span>
+      </div>
+      <div class="file-item">
+        <i class="fas fa-file-code"></i>
+        <span><strong>test.c.html</strong> - Generated HTML output</span>
+      </div>
+      <div class="file-item">
+        <i class="fas fa-file"></i>
+        <span><strong>Makefile</strong> - Build automation</span>
+      </div>
+      <div class="file-item">
+        <i class="fas fa-file-alt"></i>
+        <span><strong>README.md</strong> - Project documentation</span>
+      </div>
+    </div>
+    
+    <div class="code-preview">
+      <span class="code-comment">// File relationships and flow</span><br>
+      <span class="code-comment">// s2html_main.c -- includes --> s2html_event.h & s2html_conv.h</span><br>
+      <span class="code-comment">// s2html_event.c -- defines --> Parser State Machine & Event Generation</span><br>
+      <span class="code-comment">// s2html_conv.c -- defines --> HTML Generation Functions</span><br>
+      <span class="code-comment">// styles.css -- provides --> CSS Styling for HTML Output</span><br><br>
+      
+      <span class="code-comment">// Compilation command:</span><br>
+      gcc s2html_main.c s2html_event.c s2html_conv.c -o sode2html
+    </div>
+  </section>
+
+  <!-- PARSER ALGORITHMS -->
+  <section class="section-card">
+    <h2>Parser Algorithms & Implementation</h2>
+    
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3><i class="fas fa-sitemap"></i> Finite State Machine</h3>
+        <p>12-state FSM with specialized handlers for each C language construct.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-search"></i> Keyword Detection</h3>
+        <p>Separate arrays for data-type and control keywords with efficient lookup.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-code-branch"></i> Nested State Handling</h3>
+        <p>Sub-states within preprocessor directives for complex parsing scenarios.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-stream"></i> Buffer Management</h3>
+        <p>Dynamic word buffers and event data storage with bounds checking.</p>
+      </div>
+    </div>
+    
+    <div class="code-preview">
+      <span class="code-comment">// Example: Keyword detection arrays</span><br>
+      <span class="code-keyword">static char</span>* res_kwords_data[] = {<br>
+      &nbsp;&nbsp;<span class="code-string">"const"</span>, <span class="code-string">"volatile"</span>, <span class="code-string">"extern"</span>, <span class="code-string">"auto"</span>, <span class="code-string">"register"</span>,<br>
+      &nbsp;&nbsp;<span class="code-string">"static"</span>, <span class="code-string">"signed"</span>, <span class="code-string">"unsigned"</span>, <span class="code-string">"short"</span>, <span class="code-string">"long"</span>,<br>
+      &nbsp;&nbsp;<span class="code-string">"double"</span>, <span class="code-string">"char"</span>, <span class="code-string">"int"</span>, <span class="code-string">"float"</span>, <span class="code-string">"struct"</span>,<br>
+      &nbsp;&nbsp;<span class="code-string">"union"</span>, <span class="code-string">"enum"</span>, <span class="code-string">"void"</span>, <span class="code-string">"typedef"</span>, <span class="code-string">""</span><br>
+      };<br><br>
+      
+      <span class="code-keyword">static char</span>* res_kwords_non_data[] = {<br>
+      &nbsp;&nbsp;<span class="code-string">"goto"</span>, <span class="code-string">"return"</span>, <span class="code-string">"continue"</span>, <span class="code-string">"break"</span>,<br>
+      &nbsp;&nbsp;<span class="code-string">"if"</span>, <span class="code-string">"else"</span>, <span class="code-string">"for"</span>, <span class="code-string">"while"</span>, <span class="code-string">"do"</span>,<br>
+      &nbsp;&nbsp;<span class="code-string">"switch"</span>, <span class="code-string">"case"</span>, <span class="code-string">"default"</span>,<span class="code-string">"sizeof"</span>, <span class="code-string">""</span><br>
+      };<br><br>
+      
+      <span class="code-comment">// Example: State transition logic</span><br>
+      <span class="code-keyword">pevent_t</span> * <span class="code-function">pstate_idle_handler</span>(FILE *fd, <span class="code-keyword">int</span> ch) {<br>
+      &nbsp;&nbsp;<span class="code-keyword">switch</span>(ch) {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">case</span> <span class="code-string">'/'</span>: <span class="code-comment">// Comment detection</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">int</span> next_char = <span class="code-function">fgetc</span>(fd);<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">if</span>(next_char == <span class="code-string">'/'</span>) {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state = PSTATE_SINGLE_LINE_COMMENT;<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;} <span class="code-keyword">else</span> <span class="code-keyword">if</span>(next_char == <span class="code-string">'*'</span>) {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state = PSTATE_MULTI_LINE_COMMENT;<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">break</span>;<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">case</span> <span class="code-string">'#'</span>: <span class="code-comment">// Preprocessor directive</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;state = PSTATE_PREPROCESSOR_DIRECTIVE;<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">break</span>;<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-comment">// ... more cases</span><br>
+      &nbsp;&nbsp;}<br>
+      &nbsp;&nbsp;<span class="code-keyword">return</span> NULL;<br>
+      }
+    </div>
+  </section>
+
+  <!-- TECHNOLOGIES -->
+  <section class="section-card">
+    <h2>Technologies & Concepts</h2>
+    <div class="tech-tags">
+      <span>C Programming</span>
+      <span>Finite State Machines</span>
+      <span>Lexical Analysis</span>
+      <span>HTML5</span>
+      <span>CSS3</span>
+      <span>File I/O</span>
+      <span>Parser Design</span>
+      <span>Syntax Highlighting</span>
+      <span>Character Encoding</span>
+      <span>Memory Management</span>
+      <span>Command Line Tools</span>
+      <span>Modular Architecture</span>
+      <span>Data Structures</span>
+    </div>
+  </section>
+
+  <!-- USAGE & EXAMPLES -->
+  <section class="section-card">
+    <h2>Usage Examples</h2>
+    
+    <div class="code-preview">
+      <span class="code-comment"># Basic usage: Convert single file</span><br>
+      <span class="terminal-prompt">$</span> ./sode2html source.c<br>
+      <span class="terminal-output">Output file source.c.html generated</span><br><br>
+      
+      <span class="code-comment"># Specify output filename</span><br>
+      <span class="terminal-prompt">$</span> ./sode2html input.c output.html<br>
+      <span class="terminal-output">Output file output.html generated</span><br><br>
+      
+      <span class="code-comment"># Batch processing with shell script</span><br>
+      <span class="terminal-prompt">$</span> <span class="terminal-command">for file in *.c; do ./sode2html "$file"; done</span><br>
+      <span class="terminal-output">Processing main.c...</span><br>
+      <span class="terminal-output">Processing utils.c...</span><br>
+      <span class="terminal-output">Processing parser.c...</span><br>
+      <span class="terminal-output">All files converted to HTML</span><br><br>
+      
+      <span class="code-comment"># Custom CSS styling</span><br>
+      <span class="terminal-prompt">$</span> <span class="terminal-command">cp styles.css custom.css</span><br>
+      <span class="terminal-prompt">$</span> <span class="terminal-command">vim custom.css  # Edit colors as desired</span><br>
+      <span class="terminal-prompt">$</span> <span class="terminal-command">./sode2html program.c</span><br>
+      <span class="terminal-comment"># Then manually replace styles.css with custom.css in HTML</span>
+    </div>
+    
+    <table class="command-table">
+      <thead>
+        <tr>
+          <th>Command</th>
+          <th>Description</th>
+          <th>Example</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>./sode2html &lt;source&gt;</code></td>
+          <td>Convert C file to HTML with same name</td>
+          <td><code>./sode2html program.c</code></td>
+        </tr>
+        <tr>
+          <td><code>./sode2html &lt;source&gt; &lt;dest&gt;</code></td>
+          <td>Convert C file to specific HTML file</td>
+          <td><code>./sode2html input.c output.html</code></td>
+        </tr>
+        <tr>
+          <td><code>DEBUG=1 ./sode2html ...</code></td>
+          <td>Enable debug output during parsing</td>
+          <td><code>DEBUG=1 ./sode2html test.c</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- CHALLENGES & SOLUTIONS -->
+  <section class="section-card">
+    <h2>Technical Challenges & Solutions</h2>
+    
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3><i class="fas fa-exchange-alt"></i> State Management</h3>
+        <p>Challenge: Managing 12 different parser states. Solution: Clean state machine with dedicated handler functions.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-code"></i> Escape Sequences</h3>
+        <p>Challenge: Handling \n, \t, \\ in strings and chars. Solution: Special parsing for backslash characters.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-random"></i> Nested Parsing</h3>
+        <p>Challenge: Preprocessor directives containing keywords. Solution: Sub-state system within preprocessor state.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-file-export"></i> HTML Generation</h3>
+        <p>Challenge: Valid HTML with proper escaping. Solution: Careful character handling and span wrapping.</p>
+      </div>
+    </div>
+    
+    <div class="code-preview">
+      <span class="code-comment">// Challenge: Differentiating header file types</span><br>
+      <span class="code-keyword">case</span> PEVENT_HEADER_FILE:<br>
+      &nbsp;&nbsp;<span class="code-comment">/* write to html */</span><br>
+      &nbsp;&nbsp;<span class="code-keyword">if</span>(event->property == USER_HEADER_FILE)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-function">fprintf</span>(fp,<span class="code-string">"&lt;span class=\"header_file\"&gt;%s&lt;/span&gt;"</span>,event->data);<br>
+      &nbsp;&nbsp;<span class="code-keyword">else</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-function">fprintf</span>(fp,<span class="code-string">"&lt;span class=\"header_file\"&gt;&amp;lt;%s&amp;gt;&lt;/span&gt;"</span>,event->data);<br>
+      &nbsp;&nbsp;<span class="code-keyword">break</span>;<br><br>
+      
+      <span class="code-comment">// Solution: Separate properties for std vs user headers</span><br>
+      <span class="code-preprocessor">#define</span> USER_HEADER_FILE   1<br>
+      <span class="code-preprocessor">#define</span> STD_HEADER_FILE    2
+    </div>
+  </section>
+
+  <!-- FUTURE ENHANCEMENTS -->
+  <section class="section-card">
+    <h2>Future Enhancements</h2>
+    
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3><i class="fas fa-language"></i> Multi-Language Support</h3>
+        <p>Extend parser to handle C++, Java, Python, and other programming languages.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-download"></i> Theme System</h3>
+        <p>Add support for different color themes (dark mode, solarized, etc.).</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-columns"></i> Side-by-Side View</h3>
+        <p>Generate HTML with source and highlighted output side by side.</p>
+      </div>
+
+      <div class="feature-card">
+        <h3><i class="fas fa-server"></i> Web Interface</h3>
+        <p>Create web version with drag-and-drop file conversion.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // Interactive code block copying
+  document.addEventListener('DOMContentLoaded', function() {
+    const codeBlocks = document.querySelectorAll('.code-preview, .terminal-demo');
+    
+    codeBlocks.forEach(block => {
+      block.addEventListener('click', function() {
+        const text = this.innerText;
+        navigator.clipboard.writeText(text).then(() => {
+          const original = this.innerHTML;
+          this.innerHTML = '<i class="fas fa-check"></i> Code copied to clipboard!';
+          setTimeout(() => {
+            this.innerHTML = original;
+          }, 2000);
+        });
+      });
+    });
+    
+    // State machine visualization interaction
+    const stateCards = document.querySelectorAll('.state-card');
+    let activeState = 0;
+    
+    function rotateActiveState() {
+      stateCards.forEach(card => card.classList.remove('active'));
+      stateCards[activeState].classList.add('active');
+      activeState = (activeState + 1) % stateCards.length;
+    }
+    
+    // Auto-rotate states every 3 seconds
+    setInterval(rotateActiveState, 3000);
+    
+    // Click to set active state
+    stateCards.forEach((card, index) => {
+      card.addEventListener('click', () => {
+        stateCards.forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+        activeState = index;
+      });
+    });
+    
+    // Add hover effects to module cards
+    const moduleCards = document.querySelectorAll('.module-card, .feature-card');
+    moduleCards.forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        const icon = card.querySelector('i');
+        if (icon) {
+          icon.style.transform = 'scale(1.2)';
+          icon.style.transition = 'transform 0.3s ease';
+        }
+      });
+      
+      card.addEventListener('mouseleave', () => {
+        const icon = card.querySelector('i');
+        if (icon) {
+          icon.style.transform = 'scale(1)';
+        }
+      });
+    });
+  });
+</script>
+
+</body>
+</html>
