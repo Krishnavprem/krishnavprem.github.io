@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MiniShell | Linux C Project</title>
+
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    .project-container { max-width: 1100px; margin: auto; padding: 140px 20px 90px; }
+
+    .project-hero {
+      background: linear-gradient(135deg, rgba(30,64,175,0.12), rgba(15,23,42,0.12));
+      border-radius: 26px; padding: 60px 40px; margin-bottom: 70px;
+      text-align: center; box-shadow: 0 30px 65px rgba(0,0,0,0.15);
+    }
+    .project-hero h1 { font-size: 3rem; margin-bottom: 16px; }
+    .project-hero p  { max-width: 780px; margin: auto; font-size: 1.15rem; color: var(--text-muted); line-height: 1.8; }
+
+    .section-card { background: var(--bg-card); border-radius: 22px; padding: 42px; margin-bottom: 60px; box-shadow: 0 18px 45px rgba(0,0,0,0.08); }
+    .section-card h2 { font-size: 1.9rem; margin-bottom: 18px; }
+    .section-card p  { color: var(--text-muted); line-height: 1.8; margin-bottom: 18px; }
+
+    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; margin-top: 30px; }
+    .feature-card { background: var(--bg-soft); padding: 26px; border-radius: 18px; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .feature-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(0,0,0,0.12); }
+    .feature-card h3 { margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+    .feature-card h3 i { color: var(--accent); }
+    .feature-card p { color: var(--text-muted); line-height: 1.7; margin: 0; }
+
+    .tech-tags { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+    .tech-tags span { background: rgba(30,64,175,0.15); color: var(--accent); padding: 8px 14px; border-radius: 999px; font-size: 0.9rem; font-weight: 500; }
+
+    .project-links { margin-top: 28px; display: flex; gap: 16px; flex-wrap: wrap; }
+    .github-btn { display: inline-flex; align-items: center; gap: 10px; background: var(--accent); color: #fff; padding: 14px 22px; border-radius: 14px; text-decoration: none; font-weight: 500; transition: transform 0.2s ease, background 0.3s ease; }
+    .github-btn:hover { background: var(--accent-hover); transform: translateY(-2px); }
+
+    /* Flow diagram */
+    .flow-diagram { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; margin: 28px 0; }
+    .flow-box { background: var(--bg-soft); border: 2px solid var(--accent); border-radius: 12px; padding: 12px 20px; font-weight: 600; font-size: 0.9rem; color: var(--accent); text-align: center; }
+    .flow-box.dark { background: var(--accent); color: #fff; }
+    .flow-arrow { color: var(--text-muted); font-size: 1.4rem; font-weight: 700; }
+
+    /* Builtin table */
+    .builtin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-top: 20px; }
+    .builtin-tag { background: var(--bg-soft); border: 1px solid rgba(30,64,175,0.2); border-radius: 10px; padding: 8px 14px; font-family: 'Courier New', monospace; font-size: 0.9rem; color: var(--accent); text-align: center; }
+
+    /* File structure */
+    .file-structure { background: var(--bg-soft); padding: 24px; border-radius: 14px; }
+    .file-structure h3 { margin-bottom: 16px; }
+    .file-item { display: flex; align-items: center; gap: 12px; margin: 8px 0; padding: 8px 12px; background: var(--bg-card); border-radius: 8px; font-size: 0.95rem; }
+    .file-item i { color: var(--accent); }
+
+    /* ========== TABBED CODE VIEWER ========== */
+    .code-viewer { background: #0f172a; border-radius: 18px; overflow: hidden; margin-top: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.25); }
+    .code-tabs { display: flex; flex-wrap: wrap; background: #1e293b; border-bottom: 1px solid #334155; }
+    .code-tab { padding: 11px 16px; font-size: 0.82rem; font-family: 'Courier New', monospace; color: #94a3b8; cursor: pointer; border: none; background: none; border-bottom: 3px solid transparent; transition: all 0.2s ease; white-space: nowrap; }
+    .code-tab:hover { color: #e2e8f0; background: rgba(255,255,255,0.04); }
+    .code-tab.active { color: #60a5fa; border-bottom: 3px solid #60a5fa; background: rgba(96,165,250,0.06); }
+    .code-panels { position: relative; }
+    .code-panel { display: none; padding: 28px; overflow-x: auto; }
+    .code-panel.active { display: block; }
+    .code-panel pre { margin: 0; font-family: 'Courier New', monospace; font-size: 0.88rem; line-height: 1.75; color: #e2e8f0; white-space: pre; }
+    .copy-btn { float: right; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); color: #94a3b8; padding: 6px 14px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s ease; margin-bottom: 14px; }
+    .copy-btn:hover { background: rgba(96,165,250,0.15); color: #60a5fa; }
+
+    /* syntax tokens */
+    .kw  { color: #60a5fa; }
+    .fn  { color: #34d399; }
+    .str { color: #fbbf24; }
+    .cm  { color: #475569; font-style: italic; }
+    .tp  { color: #f472b6; }
+    .nm  { color: #fb923c; }
+    .pp  { color: #a78bfa; }
+    .mac { color: #e879f9; }
+
+    @media (max-width: 600px) {
+      .code-tab { padding: 9px 10px; font-size: 0.75rem; }
+      .flow-diagram { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="nav-container">
+    <div class="logo">Krishna's Portfolio</div>
+    <nav><ul><li><a href="../index.html#projects">← Back to Projects</a></li></ul></nav>
+  </div>
+</header>
+
+<main class="project-container">
+
+  <!-- HERO -->
+  <section class="project-hero">
+    <h1>🐚 MiniShell</h1>
+    <p>
+      A lightweight Unix command-line interpreter written in C that replicates core Linux shell
+      functionality — built-in commands, external process execution, pipe support, background jobs,
+      signal handling, and a custom prompt — all built from scratch using Linux system calls.
+    </p>
+  </section>
+
+  <!-- OVERVIEW -->
+  <section class="section-card">
+    <h2>Project Overview</h2>
+    <p>
+      MiniShell is a fully functional shell implemented in C using Linux system calls. It reads
+      user input in a REPL loop, classifies each command as built-in, external, or unknown, and
+      dispatches accordingly. External commands are executed via <code>fork()</code> +
+      <code>execvp()</code>. Pipe chains between multiple commands are handled using
+      <code>pipe()</code> and <code>dup2()</code>. Background process execution is supported
+      with <code>&amp;</code>. Signal handling for <code>SIGINT</code>, <code>SIGTSTP</code>,
+      and <code>SIGCHLD</code> enables foreground/background job control. Suspended jobs are
+      tracked using a singly linked list and can be resumed with <code>fg</code> or
+      <code>bg</code>.
+    </p>
+    <div class="tech-tags">
+      <span>C</span><span>Linux</span><span>System Calls</span><span>fork / execvp</span>
+      <span>pipe / dup2</span><span>Signal Handling</span><span>Job Control</span>
+      <span>Linked Lists</span><span>Process Management</span>
+    </div>
+    <div class="project-links">
+      <a href="https://github.com/Krishnavprem/minishell" target="_blank" class="github-btn">
+        <i class="fab fa-github"></i> View Source Code
+      </a>
+    </div>
+  </section>
+
+  <!-- EXECUTION FLOW -->
+  <section class="section-card">
+    <h2>Execution Flow</h2>
+    <p>Every command entered goes through this pipeline before executing:</p>
+    <div class="flow-diagram">
+      <div class="flow-box dark">User Input</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">get_command()<br><small>extract token</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">check_command_type()<br><small>BUILTIN / EXTERNAL / NONE</small></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box dark">Execute</div>
+    </div>
+    <div class="flow-diagram" style="margin-top: 0;">
+      <div class="flow-box">execute_internal_commands()<br><small>cd, pwd, echo, jobs…</small></div>
+      <span style="color:var(--text-muted); font-size:1.1rem;">or</span>
+      <div class="flow-box">execute_external_commands()<br><small>fork + execvp / pipes</small></div>
+      <span style="color:var(--text-muted); font-size:1.1rem;">or</span>
+      <div class="flow-box">Command not found<br><small>status = 127</small></div>
+    </div>
+  </section>
+
+  <!-- CORE FEATURES -->
+  <section class="section-card">
+    <h2>Core Features</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3><i class="fas fa-terminal"></i> Built-in Commands</h3>
+        <p>Implements <code>cd</code>, <code>pwd</code>, <code>echo</code>, <code>exit</code>,
+           <code>jobs</code>, <code>fg</code>, <code>bg</code> and more directly inside the shell process.</p>
+      </div>
+      <div class="feature-card">
+        <h3><i class="fas fa-cogs"></i> External Commands</h3>
+        <p>Executes any system binary using <code>fork()</code> + <code>execvp()</code>.
+           Scans PATH environment and <code>ext_cmd.txt</code> for command resolution.</p>
+      </div>
+      <div class="feature-card">
+        <h3><i class="fas fa-exchange-alt"></i> Pipe Support</h3>
+        <p>Chains multiple commands with <code>|</code> using <code>pipe()</code> and
+           <code>dup2()</code> to wire stdout of one process to stdin of the next.</p>
+      </div>
+      <div class="feature-card">
+        <h3><i class="fas fa-layer-group"></i> Background Jobs</h3>
+        <p>Append <code>&amp;</code> to run a process in the background. Job PIDs are stored
+           in a linked list and can be brought back with <code>fg</code>/<code>bg</code>.</p>
+      </div>
+      <div class="feature-card">
+        <h3><i class="fas fa-bolt"></i> Signal Handling</h3>
+        <p>Handles <code>SIGINT</code> (Ctrl+C), <code>SIGTSTP</code> (Ctrl+Z), and
+           <code>SIGCHLD</code> for automatic zombie cleanup and job tracking.</p>
+      </div>
+      <div class="feature-card">
+        <h3><i class="fas fa-pencil-alt"></i> Custom Prompt</h3>
+        <p>Supports <code>PS1=</code> to change the prompt at runtime, just like a real
+           bash shell.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- BUILT-IN COMMANDS -->
+  <section class="section-card">
+    <h2>Supported Built-in Commands</h2>
+    <p>These commands are handled internally without forking a child process:</p>
+    <div class="builtin-grid">
+      <div class="builtin-tag">echo</div>
+      <div class="builtin-tag">printf</div>
+      <div class="builtin-tag">read</div>
+      <div class="builtin-tag">cd</div>
+      <div class="builtin-tag">pwd</div>
+      <div class="builtin-tag">pushd</div>
+      <div class="builtin-tag">popd</div>
+      <div class="builtin-tag">dirs</div>
+      <div class="builtin-tag">let</div>
+      <div class="builtin-tag">eval</div>
+      <div class="builtin-tag">set</div>
+      <div class="builtin-tag">unset</div>
+      <div class="builtin-tag">export</div>
+      <div class="builtin-tag">declare</div>
+      <div class="builtin-tag">readonly</div>
+      <div class="builtin-tag">getopts</div>
+      <div class="builtin-tag">source</div>
+      <div class="builtin-tag">exit</div>
+      <div class="builtin-tag">exec</div>
+      <div class="builtin-tag">jobs</div>
+      <div class="builtin-tag">fg</div>
+      <div class="builtin-tag">bg</div>
+      <div class="builtin-tag">type</div>
+      <div class="builtin-tag">help</div>
+    </div>
+  </section>
+
+  <!-- SOURCE CODE -->
+  <section class="section-card">
+    <h2>Source Code</h2>
+    <p>Click any tab to browse the full source files.</p>
+
+    <div class="code-viewer">
+      <div class="code-tabs">
+        <button class="code-tab active" data-tab="main">main.c</button>
+        <button class="code-tab" data-tab="header">header.h</button>
+        <button class="code-tab" data-tab="input">input.c</button>
+        <button class="code-tab" data-tab="commands">commands.c</button>
+        <button class="code-tab" data-tab="builtin">builtin.c</button>
+        <button class="code-tab" data-tab="operations">operations.c</button>
+      </div>
+
+      <div class="code-panels">
+
+        <!-- main.c -->
+        <div class="code-panel active" id="tab-main">
+          <button class="copy-btn" onclick="copyCode('tab-main')"><i class="fas fa-copy"></i> Copy</button>
+          <pre><span class="cm">/*
+ * Name        : Krishna V Prem
+ * Date        : 4th February 2026
+ * Description : MiniShell — a lightweight Unix-based command-line interpreter
+ *               developed in C that replicates core Linux shell functionality.
+ *               Supports built-in commands, external process execution via fork/exec,
+ *               pipe chaining, background jobs, and signal handling.
+ */</span>
+
+<span class="pp">#include</span> <span class="str">"header.h"</span>
+
+<span class="kw">char</span> prompt[<span class="nm">25</span>] = <span class="str">"minishell$:"</span>;
+<span class="kw">char</span> input_string[<span class="nm">256</span>];
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="fn">system</span>(<span class="str">"clear"</span>);
+    <span class="fn">scan_input</span>(prompt, input_string);
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</pre>
+        </div>
+
+        <!-- header.h -->
+        <div class="code-panel" id="tab-header">
+          <button class="copy-btn" onclick="copyCode('tab-header')"><i class="fas fa-copy"></i> Copy</button>
+          <pre><span class="pp">#ifndef HEADER_H
+#define HEADER_H
+
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;stddef.h&gt;
+#include &lt;stdio_ext.h&gt;
+#include &lt;sys/types.h&gt;
+#include &lt;sys/stat.h&gt;
+#include &lt;fcntl.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;signal.h&gt;
+#include &lt;sys/wait.h&gt;
+#include &lt;errno.h&gt;</span>
+
+<span class="cm">/* Command type constants */</span>
+<span class="pp">#define</span> <span class="mac">BUILTIN</span>     <span class="nm">1</span>
+<span class="pp">#define</span> <span class="mac">EXTERNAL</span>    <span class="nm">2</span>
+<span class="pp">#define</span> <span class="mac">NO_COMMAND</span>  <span class="nm">3</span>
+
+<span class="cm">/* ANSI colour codes for prompt */</span>
+<span class="pp">#define</span> <span class="mac">ANSI_COLOR_RED</span>     <span class="str">"\x1b[31m"</span>
+<span class="pp">#define</span> <span class="mac">ANSI_COLOR_GREEN</span>   <span class="str">"\x1b[32m"</span>
+<span class="pp">#define</span> <span class="mac">ANSI_COLOR_YELLOW</span>  <span class="str">"\x1b[33m"</span>
+<span class="pp">#define</span> <span class="mac">ANSI_COLOR_BLUE</span>    <span class="str">"\x1b[34m"</span>
+<span class="pp">#define</span> <span class="mac">ANSI_COLOR_MAGENTA</span> <span class="str">"\x1b[35m"</span>
+<span class="pp">#define</span> <span class="mac">ANSI_COLOR_CYAN</span>    <span class="str">"\x1b[36m"</span>
+<span class="pp">#define</span> <span class="mac">ANSI_COLOR_RESET</span>   <span class="str">"\x1b[0m"</span>
+
+<span class="cm">/* Globals */</span>
+<span class="kw">extern char</span>  prompt[<span class="nm">25</span>];
+<span class="kw">extern char</span>  input_string[<span class="nm">256</span>];
+<span class="kw">extern char</span> *builtins[];
+<span class="kw">extern char</span> *external_commands[<span class="nm">152</span>];
+<span class="kw">extern</span> pid_t pid;
+<span class="kw">extern int</span>   status;
+
+<span class="cm">/* Singly linked list — used to track suspended/background job PIDs */</span>
+<span class="kw">typedef struct</span> node {
+    <span class="kw">int</span>          data;
+    <span class="kw">struct</span> node *link;
+} <span class="tp">SLL</span>;
+
+<span class="kw">extern</span> <span class="tp">SLL</span> *list;
+
+<span class="cm">/* Function prototypes */</span>
+<span class="kw">void</span>  <span class="fn">scan_input</span>(<span class="kw">char</span> *prompt, <span class="kw">char</span> *input_string);
+<span class="kw">char</span> *<span class="fn">get_command</span>(<span class="kw">char</span> *input_string);
+<span class="kw">void</span>  <span class="fn">copy_change</span>(<span class="kw">char</span> *prompt, <span class="kw">char</span> *input_string);
+
+<span class="kw">int</span>  <span class="fn">check_command_type</span>(<span class="kw">char</span> *command);
+<span class="kw">void</span> <span class="fn">echo</span>(<span class="kw">char</span> *input_string, <span class="kw">int</span> status);
+<span class="kw">void</span> <span class="fn">execute_internal_commands</span>(<span class="kw">char</span> *input_string);
+<span class="kw">void</span> <span class="fn">signal_handler</span>(<span class="kw">int</span> sig_num);
+<span class="kw">void</span> <span class="fn">extract_external_commands</span>(<span class="kw">char</span> **external_commands);
+<span class="kw">void</span> <span class="fn">execute_external_commands</span>(<span class="kw">char</span> *input_string);
+
+<span class="kw">int</span>  <span class="fn">insert_at_first</span>(<span class="tp">SLL</span> **head, <span class="kw">int</span> data);
+<span class="kw">int</span>  <span class="fn">delete_at_first</span>(<span class="tp">SLL</span> **head);
+<span class="kw">void</span> <span class="fn">print_data</span>(<span class="tp">SLL</span> *head);
+
+<span class="pp">#endif</span></pre>
+        </div>
+
+        <!-- input.c -->
+        <div class="code-panel" id="tab-input">
+          <button class="copy-btn" onclick="copyCode('tab-input')"><i class="fas fa-copy"></i> Copy</button>
+          <pre><span class="pp">#include</span> <span class="str">"header.h"</span>
+
+<span class="kw">int</span>   status = <span class="nm">0</span>;
+pid_t pid    = -<span class="nm">1</span>;
+<span class="kw">char</span> *external_commands[<span class="nm">152</span>];
+<span class="tp">SLL</span>  *list = <span class="nm">NULL</span>;
+
+<span class="cm">/* ── Signal handler ─────────────────────────────────────────────────────── */</span>
+<span class="kw">void</span> <span class="fn">signal_handler</span>(<span class="kw">int</span> signum) {
+
+    <span class="kw">if</span> (signum == SIGINT) {
+        <span class="kw">if</span> (pid > <span class="nm">0</span>) {
+            <span class="fn">kill</span>(pid, SIGINT);
+            pid = -<span class="nm">1</span>;
+            <span class="fn">printf</span>(<span class="str">"\n"</span>);
+        } <span class="kw">else</span> {
+            <span class="fn">printf</span>(<span class="str">"\n\x1b[32m%s\x1b[0m"</span>, prompt);
+            <span class="fn">fflush</span>(stdout);
+        }
+    }
+    <span class="kw">else if</span> (signum == SIGTSTP) {
+        <span class="kw">if</span> (pid > <span class="nm">0</span>) {
+            <span class="cm">/* Track suspended PID in linked list if not already there */</span>
+            <span class="tp">SLL</span> *temp  = list;
+            <span class="kw">int</span>  found = <span class="nm">0</span>;
+            <span class="kw">while</span> (temp != <span class="nm">NULL</span>) {
+                <span class="kw">if</span> (temp->data == pid) { found = <span class="nm">1</span>; <span class="kw">break</span>; }
+                temp = temp->link;
+            }
+            <span class="kw">if</span> (!found) <span class="fn">insert_at_first</span>(&list, pid);
+            <span class="fn">printf</span>(<span class="str">"\n"</span>);
+        } <span class="kw">else</span> {
+            <span class="fn">printf</span>(<span class="str">"\n\x1b[32m%s\x1b[0m"</span>, prompt);
+            <span class="fn">fflush</span>(stdout);
+        }
+    }
+    <span class="kw">else if</span> (signum == SIGCHLD) {
+        <span class="cm">/* Non-blocking wait — reap zombie children */</span>
+        <span class="kw">int</span>   child_status;
+        pid_t child_pid = <span class="fn">waitpid</span>(-<span class="nm">1</span>, &child_status, WNOHANG);
+        <span class="kw">if</span> (child_pid > <span class="nm">0</span>) {
+            status = child_status;
+            <span class="kw">if</span> (child_pid == pid) pid = -<span class="nm">1</span>;
+            <span class="cm">/* Remove completed PID from job list */</span>
+            <span class="tp">SLL</span> *temp = list, *prev = <span class="nm">NULL</span>;
+            <span class="kw">while</span> (temp != <span class="nm">NULL</span>) {
+                <span class="kw">if</span> (temp->data == child_pid) {
+                    <span class="kw">if</span> (prev == <span class="nm">NULL</span>) <span class="fn">delete_at_first</span>(&list);
+                    <span class="kw">else</span> { prev->link = temp->link; <span class="fn">free</span>(temp); }
+                    <span class="kw">break</span>;
+                }
+                prev = temp; temp = temp->link;
+            }
+        }
+    }
+}
+
+<span class="cm">/* ── Main REPL loop ─────────────────────────────────────────────────────── */</span>
+<span class="kw">void</span> <span class="fn">scan_input</span>(<span class="kw">char</span> *prompt, <span class="kw">char</span> *input_string) {
+    <span class="fn">signal</span>(SIGINT,  signal_handler);
+    <span class="fn">signal</span>(SIGTSTP, signal_handler);
+    <span class="fn">signal</span>(SIGCHLD, signal_handler);
+    <span class="fn">extract_external_commands</span>(external_commands);
+
+    <span class="kw">while</span> (<span class="nm">1</span>) {
+        <span class="fn">printf</span>(<span class="str">"\x1b[32m%s\x1b[0m"</span>, prompt);
+        input_string[<span class="nm">0</span>] = <span class="str">'\0'</span>;
+        <span class="fn">scanf</span>(<span class="str">"%[^\n]"</span>, input_string);
+        <span class="fn">getchar</span>();
+
+        <span class="kw">if</span> (<span class="fn">strlen</span>(input_string) == <span class="nm">0</span>) <span class="kw">continue</span>;
+
+        <span class="cm">/* PS1= — custom prompt */</span>
+        <span class="kw">if</span> (<span class="fn">strncmp</span>(input_string, <span class="str">"PS1="</span>, <span class="nm">4</span>) == <span class="nm">0</span>) {
+            <span class="kw">if</span> (<span class="fn">strlen</span>(input_string) == <span class="nm">4</span>)       prompt[<span class="nm">0</span>] = <span class="str">'\0'</span>;
+            <span class="kw">else if</span> (!<span class="fn">strcmp</span>(input_string + <span class="nm">4</span>, <span class="str">" "</span>)) <span class="fn">printf</span>(<span class="str">"Error: command not found\n"</span>);
+            <span class="kw">else</span>                                  <span class="fn">strcpy</span>(prompt, input_string + <span class="nm">4</span>);
+            <span class="kw">continue</span>;
+        }
+
+        <span class="kw">char</span> *cmd  = <span class="fn">get_command</span>(input_string);
+        <span class="kw">if</span> (!cmd || <span class="fn">strlen</span>(cmd) == <span class="nm">0</span>) { <span class="fn">free</span>(cmd); <span class="kw">continue</span>; }
+
+        <span class="kw">int</span> type = <span class="fn">check_command_type</span>(cmd);
+
+        <span class="kw">if</span> (type == <span class="mac">BUILTIN</span>)   { <span class="fn">execute_internal_commands</span>(input_string); status = <span class="nm">0</span>; }
+        <span class="kw">else if</span> (type == <span class="mac">EXTERNAL</span>) { <span class="fn">execute_external_commands</span>(input_string); }
+        <span class="kw">else</span>                  { <span class="fn">printf</span>(<span class="str">"%s: Command not found\n"</span>, cmd); status = <span class="nm">127</span> &lt;&lt; <span class="nm">8</span>; }
+
+        <span class="fn">free</span>(cmd);
+    }
+}</pre>
+        </div>
+
+        <!-- commands.c -->
+        <div class="code-panel" id="tab-commands">
+          <button class="copy-btn" onclick="copyCode('tab-commands')"><i class="fas fa-copy"></i> Copy</button>
+          <pre><span class="pp">#include</span> <span class="str">"header.h"</span>
+
+<span class="cm">/* ── Extract first token from input ─────────────────────────────────────── */</span>
+<span class="kw">char</span> *<span class="fn">get_command</span>(<span class="kw">char</span> *input_string) {
+    <span class="kw">if</span> (!input_string || <span class="fn">strlen</span>(input_string) == <span class="nm">0</span>) <span class="kw">return</span> <span class="nm">NULL</span>;
+
+    <span class="kw">int</span> start = <span class="nm">0</span>;
+    <span class="kw">while</span> (input_string[start] == <span class="str">' '</span>) start++;
+
+    <span class="kw">int</span> i = start;
+    <span class="kw">while</span> (input_string[i] != <span class="str">' '</span> && input_string[i] != <span class="str">'\0'</span>) i++;
+
+    <span class="kw">if</span> (i == start) <span class="kw">return</span> <span class="nm">NULL</span>;
+
+    <span class="kw">char</span> *cmd = <span class="fn">malloc</span>(i - start + <span class="nm">1</span>);
+    <span class="kw">if</span> (!cmd) <span class="kw">return</span> <span class="nm">NULL</span>;
+    <span class="fn">strncpy</span>(cmd, input_string + start, i - start);
+    cmd[i - start] = <span class="str">'\0'</span>;
+    <span class="kw">return</span> cmd;
+}
+
+<span class="cm">/* ── Determine if command is BUILTIN, EXTERNAL, or unknown ──────────────── */</span>
+<span class="kw">int</span> <span class="fn">check_command_type</span>(<span class="kw">char</span> *command) {
+    <span class="kw">if</span> (!command || <span class="fn">strlen</span>(command) == <span class="nm">0</span>) <span class="kw">return</span> <span class="mac">NO_COMMAND</span>;
+
+    <span class="cm">/* Check built-ins list */</span>
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; builtins[i] != <span class="nm">NULL</span>; i++)
+        <span class="kw">if</span> (<span class="fn">strcmp</span>(command, builtins[i]) == <span class="nm">0</span>) <span class="kw">return</span> <span class="mac">BUILTIN</span>;
+
+    <span class="cm">/* Check ext_cmd.txt list */</span>
+    <span class="kw">if</span> (external_commands[<span class="nm">0</span>] != <span class="nm">NULL</span>)
+        <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; external_commands[i] != <span class="nm">NULL</span>; i++)
+            <span class="kw">if</span> (<span class="fn">strcmp</span>(command, external_commands[i]) == <span class="nm">0</span>) <span class="kw">return</span> <span class="mac">EXTERNAL</span>;
+
+    <span class="cm">/* Fallback: search PATH */</span>
+    <span class="kw">char</span> *path = <span class="fn">getenv</span>(<span class="str">"PATH"</span>);
+    <span class="kw">if</span> (path) {
+        <span class="kw">char</span> *path_copy = <span class="fn">strdup</span>(path);
+        <span class="kw">char</span> *dir       = <span class="fn">strtok</span>(path_copy, <span class="str">":"</span>);
+        <span class="kw">char</span>  full_path[<span class="nm">1024</span>];
+        <span class="kw">while</span> (dir) {
+            <span class="fn">snprintf</span>(full_path, <span class="kw">sizeof</span>(full_path), <span class="str">"%s/%s"</span>, dir, command);
+            <span class="kw">if</span> (<span class="fn">access</span>(full_path, X_OK) == <span class="nm">0</span>) { <span class="fn">free</span>(path_copy); <span class="kw">return</span> <span class="mac">EXTERNAL</span>; }
+            dir = <span class="fn">strtok</span>(<span class="nm">NULL</span>, <span class="str">":"</span>);
+        }
+        <span class="fn">free</span>(path_copy);
+    }
+    <span class="kw">return</span> <span class="mac">NO_COMMAND</span>;
+}
+
+<span class="cm">/* ── Load external command list from ext_cmd.txt ────────────────────────── */</span>
+<span class="kw">void</span> <span class="fn">extract_external_commands</span>(<span class="kw">char</span> **external_commands) {
+    FILE *fd = <span class="fn">fopen</span>(<span class="str">"./ext_cmd.txt"</span>, <span class="str">"r"</span>);
+    <span class="kw">if</span> (!fd) { <span class="fn">perror</span>(<span class="str">"fopen"</span>); external_commands[<span class="nm">0</span>] = <span class="nm">NULL</span>; <span class="kw">return</span>; }
+
+    <span class="kw">char</span> buffer[<span class="nm">256</span>];
+    <span class="kw">int</span>  size = <span class="nm">0</span>;
+    <span class="kw">while</span> (<span class="fn">fgets</span>(buffer, <span class="kw">sizeof</span>(buffer), fd) && size &lt; <span class="nm">151</span>) {
+        <span class="kw">int</span> len = <span class="fn">strlen</span>(buffer);
+        <span class="kw">if</span> (len > <span class="nm">0</span> && (buffer[len-<span class="nm">1</span>] == <span class="str">'\n'</span> || buffer[len-<span class="nm">1</span>] == <span class="str">'\r'</span>)) buffer[--len] = <span class="str">'\0'</span>;
+        external_commands[size] = <span class="fn">malloc</span>(len + <span class="nm">1</span>);
+        <span class="kw">if</span> (!external_commands[size]) { <span class="fn">fclose</span>(fd); external_commands[size] = <span class="nm">NULL</span>; <span class="kw">return</span>; }
+        <span class="fn">strcpy</span>(external_commands[size++], buffer);
+    }
+    external_commands[size] = <span class="nm">NULL</span>;
+    <span class="fn">fclose</span>(fd);
+}
+
+<span class="cm">/* ── Execute built-in commands ──────────────────────────────────────────── */</span>
+<span class="kw">void</span> <span class="fn">execute_internal_commands</span>(<span class="kw">char</span> *input_string) {
+
+    <span class="kw">if</span> (!<span class="fn">strcmp</span>(input_string, <span class="str">"exit"</span>))  <span class="fn">exit</span>(<span class="nm">0</span>);
+
+    <span class="kw">else if</span> (!<span class="fn">strcmp</span>(input_string, <span class="str">"pwd"</span>)) {
+        <span class="kw">char</span> buf[<span class="nm">256</span>];
+        <span class="kw">if</span> (<span class="fn">getcwd</span>(buf, <span class="nm">256</span>)) <span class="fn">printf</span>(<span class="str">"%s\n"</span>, buf);
+        <span class="kw">else</span> <span class="fn">perror</span>(<span class="str">"getcwd"</span>);
+    }
+    <span class="kw">else if</span> (!<span class="fn">strncmp</span>(input_string, <span class="str">"cd"</span>, <span class="nm">2</span>)) {
+        <span class="kw">char</span> buf[<span class="nm">256</span>], *path = <span class="nm">NULL</span>;
+        <span class="kw">if</span>      (<span class="fn">strlen</span>(input_string) == <span class="nm">2</span>)  path = <span class="fn">getenv</span>(<span class="str">"HOME"</span>);
+        <span class="kw">else if</span> (input_string[<span class="nm">2</span>] == <span class="str">' '</span>)   { path = input_string + <span class="nm">3</span>; <span class="kw">while</span> (*path == <span class="str">' '</span>) path++; }
+        <span class="kw">else</span>                                  { <span class="fn">printf</span>(<span class="str">"cd: invalid syntax\n"</span>); <span class="kw">return</span>; }
+        <span class="kw">if</span> (<span class="fn">chdir</span>(path) == -<span class="nm">1</span>) <span class="fn">fprintf</span>(stderr, <span class="str">"cd: %s: No such file or directory\n"</span>, path);
+        <span class="kw">else if</span> (<span class="fn">getcwd</span>(buf, <span class="nm">256</span>))           <span class="fn">printf</span>(<span class="str">"%s\n"</span>, buf);
+    }
+    <span class="kw">else if</span> (!<span class="fn">strcmp</span>(input_string, <span class="str">"echo $$"</span>))     <span class="fn">printf</span>(<span class="str">"%d\n"</span>, <span class="fn">getpid</span>());
+    <span class="kw">else if</span> (!<span class="fn">strcmp</span>(input_string, <span class="str">"echo $?"</span>))
+        <span class="fn">printf</span>(<span class="str">"%d\n"</span>, <span class="fn">WIFEXITED</span>(status) ? <span class="fn">WEXITSTATUS</span>(status) : <span class="nm">0</span>);
+    <span class="kw">else if</span> (!<span class="fn">strcmp</span>(input_string, <span class="str">"echo $SHELL"</span>)) {
+        <span class="kw">char</span> *shell = <span class="fn">getenv</span>(<span class="str">"SHELL"</span>);
+        <span class="fn">printf</span>(<span class="str">"%s\n"</span>, shell ? shell : <span class="str">"SHELL not set"</span>);
+    }
+    <span class="kw">else if</span> (!<span class="fn">strcmp</span>(input_string, <span class="str">"jobs"</span>)) <span class="fn">print_data</span>(list);
+    <span class="kw">else if</span> (!<span class="fn">strcmp</span>(input_string, <span class="str">"fg"</span>)) {
+        <span class="kw">if</span> (list) {
+            pid_t job_pid = list->data;
+            pid = job_pid;
+            <span class="fn">printf</span>(<span class="str">"[%d] continued\n"</span>, job_pid);
+            <span class="fn">kill</span>(job_pid, SIGCONT);
+            <span class="fn">waitpid</span>(job_pid, &status, WUNTRACED);
+            <span class="kw">if</span> (<span class="fn">WIFEXITED</span>(status) || <span class="fn">WIFSIGNALED</span>(status)) <span class="fn">delete_at_first</span>(&list);
+            pid = -<span class="nm">1</span>;
+        } <span class="kw">else</span> <span class="fn">printf</span>(<span class="str">"fg: no current job\n"</span>);
+    }
+    <span class="kw">else if</span> (!<span class="fn">strcmp</span>(input_string, <span class="str">"bg"</span>)) {
+        <span class="kw">if</span> (list) {
+            pid_t bg_pid = list->data;
+            <span class="fn">printf</span>(<span class="str">"[%d] continued\n"</span>, bg_pid);
+            <span class="fn">kill</span>(bg_pid, SIGCONT);
+            <span class="fn">delete_at_first</span>(&list);
+        } <span class="kw">else</span> <span class="fn">printf</span>(<span class="str">"bg: no current job\n"</span>);
+    }
+}
+
+<span class="cm">/* ── Execute external commands (with pipe support) ──────────────────────── */</span>
+<span class="kw">void</span> <span class="fn">execute_external_commands</span>(<span class="kw">char</span> *input_string) {
+    <span class="kw">char</span> *commands[<span class="nm">100</span>];
+    <span class="kw">int</span>   arg_count = <span class="nm">0</span>, background = <span class="nm">0</span>;
+    <span class="kw">char</span>  input[<span class="nm">256</span>];
+    <span class="fn">strcpy</span>(input, input_string);
+
+    <span class="cm">/* Detect trailing & for background execution */</span>
+    <span class="kw">int</span> len = <span class="fn">strlen</span>(input);
+    <span class="kw">for</span> (<span class="kw">int</span> i = len - <span class="nm">1</span>; i >= <span class="nm">0</span>; i--) {
+        <span class="kw">if</span>      (input[i] == <span class="str">'&'</span>) { background = <span class="nm">1</span>; input[i] = <span class="str">' '</span>; <span class="kw">break</span>; }
+        <span class="kw">else if</span> (input[i] != <span class="str">' '</span>) <span class="kw">break</span>;
+    }
+
+    <span class="cm">/* Tokenise input */</span>
+    <span class="kw">char</span> *token = <span class="fn">strtok</span>(input, <span class="str">" "</span>);
+    <span class="kw">while</span> (token && arg_count &lt; <span class="nm">99</span>) { commands[arg_count++] = token; token = <span class="fn">strtok</span>(<span class="nm">NULL</span>, <span class="str">" "</span>); }
+    commands[arg_count] = <span class="nm">NULL</span>;
+
+    <span class="cm">/* Check for pipe character */</span>
+    <span class="kw">int</span> found = <span class="nm">0</span>;
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; arg_count; i++)
+        <span class="kw">if</span> (!<span class="fn">strcmp</span>(commands[i], <span class="str">"|"</span>)) { found = <span class="nm">1</span>; <span class="kw">break</span>; }
+
+    <span class="kw">if</span> (!found) {
+        <span class="cm">/* Simple single command */</span>
+        pid = <span class="fn">fork</span>();
+        <span class="kw">if</span> (pid &lt; <span class="nm">0</span>)       { <span class="fn">perror</span>(<span class="str">"fork failed"</span>); <span class="kw">return</span>; }
+        <span class="kw">else if</span> (pid == <span class="nm">0</span>) {
+            <span class="fn">signal</span>(SIGINT,  SIG_DFL);
+            <span class="fn">signal</span>(SIGTSTP, SIG_DFL);
+            <span class="fn">signal</span>(SIGCHLD, SIG_DFL);
+            <span class="fn">execvp</span>(commands[<span class="nm">0</span>], commands);
+            <span class="fn">perror</span>(<span class="str">"exec failed"</span>); <span class="fn">exit</span>(<span class="nm">1</span>);
+        } <span class="kw">else</span> {
+            <span class="kw">if</span> (background) { <span class="fn">printf</span>(<span class="str">"[%d]\n"</span>, pid); <span class="fn">insert_at_first</span>(&list, pid); pid = -<span class="nm">1</span>; }
+            <span class="kw">else</span>            { <span class="fn">waitpid</span>(pid, &status, WUNTRACED); <span class="kw">if</span> (!<span class="fn">WIFSTOPPED</span>(status)) pid = -<span class="nm">1</span>; }
+        }
+    } <span class="kw">else</span> {
+        <span class="cm">/* Pipe chain — split commands by | and wire file descriptors */</span>
+        <span class="kw">int</span> arr[arg_count], count = <span class="nm">0</span>, pipe_count = <span class="nm">0</span>;
+        arr[count++] = <span class="nm">0</span>;
+        <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; arg_count; i++)
+            <span class="kw">if</span> (!<span class="fn">strcmp</span>(commands[i], <span class="str">"|"</span>)) { commands[i] = <span class="nm">NULL</span>; arr[count++] = i + <span class="nm">1</span>; pipe_count++; }
+
+        <span class="kw">int</span> fd1[<span class="nm">2</span>], fd2[<span class="nm">2</span>];
+        <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt;= pipe_count; i++) {
+            <span class="kw">if</span> (i &lt; pipe_count) { <span class="kw">if</span> (<span class="fn">pipe</span>(fd2) == -<span class="nm">1</span>) { <span class="fn">perror</span>(<span class="str">"pipe"</span>); <span class="fn">exit</span>(<span class="nm">1</span>); } }
+            pid = <span class="fn">fork</span>();
+            <span class="kw">if</span> (pid == <span class="nm">0</span>) {
+                <span class="kw">if</span> (i > <span class="nm">0</span>)           { <span class="fn">dup2</span>(fd1[<span class="nm">0</span>], STDIN_FILENO);  <span class="fn">close</span>(fd1[<span class="nm">0</span>]); <span class="fn">close</span>(fd1[<span class="nm">1</span>]); }
+                <span class="kw">if</span> (i &lt; pipe_count) { <span class="fn">dup2</span>(fd2[<span class="nm">1</span>], STDOUT_FILENO); <span class="fn">close</span>(fd2[<span class="nm">0</span>]); <span class="fn">close</span>(fd2[<span class="nm">1</span>]); }
+                <span class="fn">execvp</span>(commands[arr[i]], commands + arr[i]); <span class="fn">exit</span>(<span class="nm">1</span>);
+            } <span class="kw">else if</span> (pid > <span class="nm">0</span>) {
+                <span class="kw">if</span> (i > <span class="nm">0</span>) { <span class="fn">close</span>(fd1[<span class="nm">0</span>]); <span class="fn">close</span>(fd1[<span class="nm">1</span>]); }
+                fd1[<span class="nm">0</span>] = fd2[<span class="nm">0</span>]; fd1[<span class="nm">1</span>] = fd2[<span class="nm">1</span>];
+            } <span class="kw">else</span> { <span class="fn">perror</span>(<span class="str">"fork"</span>); <span class="fn">exit</span>(<span class="nm">1</span>); }
+        }
+        <span class="kw">if</span> (pipe_count > <span class="nm">0</span>) { <span class="fn">close</span>(fd1[<span class="nm">0</span>]); <span class="fn">close</span>(fd1[<span class="nm">1</span>]); }
+        <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt;= pipe_count; i++) <span class="fn">wait</span>(&status);
+        pid = -<span class="nm">1</span>;
+    }
+}</pre>
+        </div>
+
+        <!-- builtin.c -->
+        <div class="code-panel" id="tab-builtin">
+          <button class="copy-btn" onclick="copyCode('tab-builtin')"><i class="fas fa-copy"></i> Copy</button>
+          <pre><span class="pp">#include &lt;stddef.h&gt;</span>
+<span class="pp">#include</span> <span class="str">"header.h"</span>
+
+<span class="cm">/* Complete list of shell built-in command names */</span>
+<span class="kw">char</span> *builtins[] = {
+    <span class="str">"echo"</span>, <span class="str">"printf"</span>, <span class="str">"read"</span>,    <span class="str">"cd"</span>,       <span class="str">"pwd"</span>,
+    <span class="str">"pushd"</span>, <span class="str">"popd"</span>,  <span class="str">"dirs"</span>,    <span class="str">"let"</span>,      <span class="str">"eval"</span>,
+    <span class="str">"set"</span>,   <span class="str">"unset"</span>, <span class="str">"export"</span>,  <span class="str">"declare"</span>,  <span class="str">"typeset"</span>,
+    <span class="str">"readonly"</span>, <span class="str">"getopts"</span>, <span class="str">"source"</span>, <span class="str">"exit"</span>,  <span class="str">"exec"</span>,
+    <span class="str">"shopt"</span>, <span class="str">"caller"</span>, <span class="str">"true"</span>,   <span class="str">"type"</span>,     <span class="str">"hash"</span>,
+    <span class="str">"bind"</span>,  <span class="str">"help"</span>,   <span class="str">"jobs"</span>,   <span class="str">"fg"</span>,       <span class="str">"bg"</span>,
+    <span class="nm">NULL</span>
+};</pre>
+        </div>
+
+        <!-- operations.c -->
+        <div class="code-panel" id="tab-operations">
+          <button class="copy-btn" onclick="copyCode('tab-operations')"><i class="fas fa-copy"></i> Copy</button>
+          <pre><span class="pp">#include</span> <span class="str">"header.h"</span>
+
+<span class="cm">/* ── Insert PID at head of job list ─────────────────────────────────────── */</span>
+<span class="kw">int</span> <span class="fn">insert_at_first</span>(<span class="tp">SLL</span> **head, <span class="kw">int</span> data) {
+    <span class="tp">SLL</span> *new = <span class="fn">malloc</span>(<span class="kw">sizeof</span>(<span class="tp">SLL</span>));
+    <span class="kw">if</span> (!new) <span class="kw">return</span> <span class="nm">0</span>;
+    new->data = data;
+    new->link = <span class="nm">NULL</span>;
+    <span class="kw">if</span> (*head == <span class="nm">NULL</span>) { *head = new; <span class="kw">return</span> <span class="nm">1</span>; }
+    new->link = *head;
+    *head = new;
+    <span class="kw">return</span> <span class="nm">1</span>;
+}
+
+<span class="cm">/* ── Remove head node from job list ─────────────────────────────────────── */</span>
+<span class="kw">int</span> <span class="fn">delete_at_first</span>(<span class="tp">SLL</span> **head) {
+    <span class="kw">if</span> (*head == <span class="nm">NULL</span>) <span class="kw">return</span> <span class="nm">0</span>;
+    <span class="tp">SLL</span> *temp = *head;
+    *head = temp->link;
+    <span class="fn">free</span>(temp);
+    <span class="kw">return</span> <span class="nm">1</span>;
+}
+
+<span class="cm">/* ── Print all tracked job PIDs ─────────────────────────────────────────── */</span>
+<span class="kw">void</span> <span class="fn">print_data</span>(<span class="tp">SLL</span> *head) {
+    <span class="kw">if</span> (!head) { <span class="fn">printf</span>(<span class="str">"No Jobs\n"</span>); <span class="kw">return</span>; }
+    <span class="tp">SLL</span> *temp = head;
+    <span class="kw">while</span> (temp) {
+        <span class="fn">printf</span>(<span class="str">"%d "</span>, temp->data);
+        temp = temp->link;
+    }
+    <span class="fn">printf</span>(<span class="str">"\n"</span>);
+}</pre>
+        </div>
+
+      </div><!-- /code-panels -->
+    </div><!-- /code-viewer -->
+  </section>
+
+  <!-- FILE STRUCTURE -->
+  <section class="section-card">
+    <h2>Project Architecture</h2>
+    <div class="file-structure">
+      <h3>Modular File Structure</h3>
+      <div class="file-item"><i class="fas fa-file-code"></i><span><strong>main.c</strong> — Entry point: clears screen, starts REPL loop</span></div>
+      <div class="file-item"><i class="fas fa-file"></i><span><strong>header.h</strong> — All includes, macros, struct definitions, and prototypes</span></div>
+      <div class="file-item"><i class="fas fa-file"></i><span><strong>input.c</strong> — REPL loop, signal handlers (SIGINT / SIGTSTP / SIGCHLD), global state</span></div>
+      <div class="file-item"><i class="fas fa-file"></i><span><strong>commands.c</strong> — Token extraction, command classification, built-in &amp; external execution</span></div>
+      <div class="file-item"><i class="fas fa-file"></i><span><strong>builtin.c</strong> — Static array of built-in command name strings</span></div>
+      <div class="file-item"><i class="fas fa-file"></i><span><strong>operations.c</strong> — Singly linked list for job PID tracking (insert / delete / print)</span></div>
+      <div class="file-item"><i class="fas fa-file-alt"></i><span><strong>ext_cmd.txt</strong> — Newline-separated list of known external commands loaded at startup</span></div>
+    </div>
+  </section>
+
+  <!-- COMPILE -->
+  <section class="section-card">
+    <h2>Compilation &amp; Usage</h2>
+    <div class="code-viewer">
+      <div class="code-tabs">
+        <button class="code-tab active" data-tab="compile">compile &amp; run</button>
+        <button class="code-tab" data-tab="demo">sample session</button>
+      </div>
+      <div class="code-panels">
+        <div class="code-panel active" id="tab-compile">
+          <pre><span class="cm"># Compile</span>
+gcc main.c input.c commands.c builtin.c operations.c -o minishell
+
+<span class="cm"># Run</span>
+./minishell</pre>
+        </div>
+        <div class="code-panel" id="tab-demo">
+          <pre><span class="fn">minishell$:</span> pwd
+/home/krishna/minishell
+
+<span class="fn">minishell$:</span> ls -la
+total 48
+drwxr-xr-x  2 krishna krishna 4096 Feb 4 12:00 .
+...
+
+<span class="fn">minishell$:</span> sleep 10 &amp;
+[12345]
+
+<span class="fn">minishell$:</span> jobs
+12345
+
+<span class="fn">minishell$:</span> fg
+[12345] continued
+
+<span class="fn">minishell$:</span> ls | grep .c
+builtin.c  commands.c  input.c  main.c  operations.c
+
+<span class="fn">minishell$:</span> PS1=krishna@shell:
+<span class="fn">krishna@shell:</span> echo $?
+0
+
+<span class="fn">krishna@shell:</span> exit</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TECHNOLOGIES -->
+  <section class="section-card">
+    <h2>Technologies &amp; Concepts</h2>
+    <div class="tech-tags">
+      <span>C</span><span>Linux</span><span>POSIX System Calls</span>
+      <span>fork()</span><span>execvp()</span><span>pipe()</span><span>dup2()</span>
+      <span>waitpid()</span><span>Signal Handling</span><span>Job Control</span>
+      <span>Singly Linked List</span><span>String Tokenisation</span>
+      <span>PATH Resolution</span><span>Process Management</span><span>REPL Loop</span>
+    </div>
+  </section>
+
+  <!-- CHALLENGES -->
+  <section class="section-card">
+    <h2>Key Challenges &amp; Solutions</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3><i class="fas fa-bolt"></i> Signal Safety</h3>
+        <p>Distinguishing Ctrl+C and Ctrl+Z behaviour between shell-level and child-process-level required careful use of <code>pid</code> state and re-raising signals correctly.</p>
+      </div>
+      <div class="feature-card">
+        <h3><i class="fas fa-exchange-alt"></i> Pipe Chaining</h3>
+        <p>Generalised pipe support for N commands required iterating over <code>|</code> tokens and wiring <code>fd1</code>/<code>fd2</code> pairs correctly between consecutive forks.</p>
+      </div>
+      <div class="feature-card">
+        <h3><i class="fas fa-ghost"></i> Zombie Reaping</h3>
+        <p>Used <code>SIGCHLD</code> with <code>waitpid(WNOHANG)</code> to non-blockingly reap all finished children and keep the job list consistent.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  document.querySelectorAll('.code-tab').forEach(tab => {
+    tab.addEventListener('click', function () {
+      const viewer = this.closest('.code-viewer');
+      viewer.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
+      viewer.querySelectorAll('.code-panel').forEach(p => p.classList.remove('active'));
+      this.classList.add('active');
+      const panel = document.getElementById('tab-' + this.dataset.tab);
+      if (panel) panel.classList.add('active');
+    });
+  });
+
+  function copyCode(panelId) {
+    const panel = document.getElementById(panelId);
+    const text  = panel.querySelector('pre').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn  = panel.querySelector('.copy-btn');
+      const orig = btn.innerHTML;
+      btn.innerHTML  = '<i class="fas fa-check"></i> Copied!';
+      btn.style.color = '#34d399';
+      setTimeout(() => { btn.innerHTML = orig; btn.style.color = ''; }, 2000);
+    });
+  }
+</script>
+
+</body>
+</html>

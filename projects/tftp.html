@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TFTP Implementation | Linux C Project</title>
+
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    .project-container { max-width: 1100px; margin: auto; padding: 140px 20px 90px; }
+
+    .project-hero {
+      background: linear-gradient(135deg, rgba(30,64,175,0.12), rgba(15,23,42,0.12));
+      border-radius: 26px; padding: 60px 40px; margin-bottom: 70px;
+      text-align: center; box-shadow: 0 30px 65px rgba(0,0,0,0.15);
+    }
+    .project-hero h1 { font-size: 3rem; margin-bottom: 16px; }
+    .project-hero p  { max-width: 780px; margin: auto; font-size: 1.15rem; color: var(--text-muted); line-height: 1.8; }
+
+    .section-card { background: var(--bg-card); border-radius: 22px; padding: 42px; margin-bottom: 60px; box-shadow: 0 18px 45px rgba(0,0,0,0.08); }
+    .section-card h2 { font-size: 1.9rem; margin-bottom: 18px; }
+    .section-card p  { color: var(--text-muted); line-height: 1.8; margin-bottom: 18px; }
+
+    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; margin-top: 30px; }
+    .feature-card { background: var(--bg-soft); padding: 26px; border-radius: 18px; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+    .feature-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(0,0,0,0.12); }
+    .feature-card h3 { margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+    .feature-card h3 i { color: var(--accent); }
+    .feature-card p { color: var(--text-muted); line-height: 1.7; margin: 0; }
+
+    .tech-tags { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+    .tech-tags span { background: rgba(30,64,175,0.15); color: var(--accent); padding: 8px 14px; border-radius: 999px; font-size: 0.9rem; font-weight: 500; }
+
+    .project-links { margin-top: 28px; display: flex; gap: 16px; flex-wrap: wrap; }
+    .github-btn { display: inline-flex; align-items: center; gap: 10px; background: var(--accent); color: #fff; padding: 14px 22px; border-radius: 14px; text-decoration: none; font-weight: 500; transition: transform 0.2s ease, background 0.3s ease; }
+    .github-btn:hover { background: var(--accent-hover); transform: translateY(-2px); }
+
+    /* Protocol flow */
+    .flow-diagram { display: flex; align-items: stretch; justify-content: center; gap: 0; margin: 28px 0; flex-wrap: wrap; }
+    .flow-col { display: flex; flex-direction: column; align-items: center; gap: 0; flex: 1; min-width: 120px; }
+    .flow-col h4 { font-size: 0.95rem; color: var(--accent); margin-bottom: 14px; font-weight: 700; letter-spacing: 0.05em; }
+    .flow-box { background: var(--bg-soft); border: 2px solid var(--accent); border-radius: 10px; padding: 10px 14px; font-size: 0.85rem; text-align: center; width: 100%; color: var(--text-main); font-weight: 600; }
+    .flow-box.dark { background: var(--accent); color: #fff; }
+    .flow-box.ack  { background: rgba(52,211,153,0.12); border-color: #34d399; color: #065f46; }
+    .flow-line { width: 2px; background: var(--accent); height: 24px; opacity: 0.3; }
+    .flow-mid { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 18px; padding-top: 38px; gap: 24px; }
+    .flow-arrow-h { font-size: 1.1rem; color: var(--accent); white-space: nowrap; font-weight: 600; }
+
+    /* Opcode table */
+    .opcode-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    .opcode-table th { background: var(--bg-soft); padding: 13px 16px; text-align: left; font-weight: 600; }
+    .opcode-table td { padding: 13px 16px; border-bottom: 1px solid rgba(0,0,0,0.06); color: var(--text-muted); }
+    .opcode-table tr:hover { background: var(--bg-soft); }
+    .opcode-code { font-family: 'Courier New', monospace; background: rgba(30,64,175,0.1); color: var(--accent); padding: 2px 8px; border-radius: 5px; font-size: 0.88rem; }
+
+    /* File structure */
+    .file-structure { background: var(--bg-soft); padding: 24px; border-radius: 14px; }
+    .file-structure h3 { margin-bottom: 16px; }
+    .file-item { display: flex; align-items: center; gap: 12px; margin: 8px 0; padding: 8px 12px; background: var(--bg-card); border-radius: 8px; font-size: 0.95rem; }
+    .file-item i { color: var(--accent); }
+
+    /* ========== TABBED CODE VIEWER ========== */
+    .code-viewer { background: #0f172a; border-radius: 18px; overflow: hidden; margin-top: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.25); }
+    .code-tabs { display: flex; flex-wrap: wrap; background: #1e293b; border-bottom: 1px solid #334155; }
+    .code-tab { padding: 11px 16px; font-size: 0.82rem; font-family: 'Courier New', monospace; color: #94a3b8; cursor: pointer; border: none; background: none; border-bottom: 3px solid transparent; transition: all 0.2s ease; white-space: nowrap; }
+    .code-tab:hover { color: #e2e8f0; background: rgba(255,255,255,0.04); }
+    .code-tab.active { color: #60a5fa; border-bottom: 3px solid #60a5fa; background: rgba(96,165,250,0.06); }
+    .code-panels { position: relative; }
+    .code-panel { display: none; padding: 28px; overflow-x: auto; }
+    .code-panel.active { display: block; }
+    .code-panel pre { margin: 0; font-family: 'Courier New', monospace; font-size: 0.88rem; line-height: 1.75; color: #e2e8f0; white-space: pre; }
+    .copy-btn { float: right; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); color: #94a3b8; padding: 6px 14px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s ease; margin-bottom: 14px; }
+    .copy-btn:hover { background: rgba(96,165,250,0.15); color: #60a5fa; }
+
+    .kw  { color: #60a5fa; }
+    .fn  { color: #34d399; }
+    .str { color: #fbbf24; }
+    .cm  { color: #475569; font-style: italic; }
+    .tp  { color: #f472b6; }
+    .nm  { color: #fb923c; }
+    .pp  { color: #a78bfa; }
+    .mac { color: #e879f9; }
+
+    @media (max-width: 600px) {
+      .code-tab { padding: 9px 10px; font-size: 0.75rem; }
+      .flow-diagram { flex-direction: column; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="nav-container">
+    <div class="logo">Krishna's Portfolio</div>
+    <nav><ul><li><a href="../index.html#projects">← Back to Projects</a></li></ul></nav>
+  </div>
+</header>
+
+<main class="project-container">
+
+  <!-- HERO -->
+  <section class="project-hero">
+    <h1>📡 TFTP Implementation</h1>
+    <p>
+      A from-scratch implementation of the Trivial File Transfer Protocol (TFTP) in C using
+      UDP sockets — featuring a multi-mode server, a command-driven client, block-by-block
+      ACK handshaking, NetASCII/Octet transfer modes, and reliable file transfer over an
+      unreliable network layer.
+    </p>
+  </section>
+
+  <!-- OVERVIEW -->
+  <section class="section-card">
+    <h2>Project Overview</h2>
+    <p>
+      TFTP (RFC 1350) is a simple file transfer protocol that runs over UDP. Unlike FTP, it has
+      no authentication, no directory listing — just read and write requests. This project
+      implements both the server and client sides in C using raw UDP socket programming.
+    </p>
+    <p>
+      The server listens on port <code>6969</code>, receives RRQ (Read Request) and WRQ (Write
+      Request) packets, and calls <code>send_file()</code> or <code>receive_file()</code>
+      accordingly. The client connects to a server IP, and supports <code>get</code> and
+      <code>put</code> commands with configurable transfer modes. Every 512-byte data block
+      requires an ACK before the next is sent — implementing the stop-and-wait protocol.
+    </p>
+    <div class="tech-tags">
+      <span>C</span><span>Linux</span><span>UDP Sockets</span><span>TFTP / RFC 1350</span>
+      <span>Network Programming</span><span>stop-and-wait</span>
+      <span>NetASCII</span><span>Octet Mode</span><span>htons / ntohs</span>
+    </div>
+    <div class="project-links">
+      <a href="https://github.com/Krishnavprem/tftp" target="_blank" class="github-btn">
+        <i class="fab fa-github"></i> View Source Code
+      </a>
+    </div>
+  </section>
+
+  <!-- PROTOCOL FLOW -->
+  <section class="section-card">
+    <h2>Protocol Flow</h2>
+    <p>TFTP uses a strict stop-and-wait mechanism — each data block must be acknowledged before the next is sent.</p>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:24px;">
+      <div style="background:var(--bg-soft); border-radius:16px; padding:24px;">
+        <h3 style="margin-bottom:16px; font-size:1.1rem;"><i class="fas fa-download" style="color:var(--accent); margin-right:8px;"></i>Read Request (RRQ)</h3>
+        <div style="font-family:'Courier New',monospace; font-size:0.88rem; line-height:2;">
+          <div>Client → Server : <strong>RRQ</strong> (filename, mode)</div>
+          <div>Server → Client : <strong>DATA</strong> block #1 (≤512 bytes)</div>
+          <div>Client → Server : <strong>ACK</strong> block #1</div>
+          <div>Server → Client : <strong>DATA</strong> block #2</div>
+          <div>Client → Server : <strong>ACK</strong> block #2</div>
+          <div style="color:var(--text-muted)">  ... repeat ...</div>
+          <div>Server → Client : <strong>DATA</strong> block #N (0 bytes = EOF)</div>
+          <div>Client → Server : <strong>ACK</strong> block #N</div>
+        </div>
+      </div>
+      <div style="background:var(--bg-soft); border-radius:16px; padding:24px;">
+        <h3 style="margin-bottom:16px; font-size:1.1rem;"><i class="fas fa-upload" style="color:var(--accent); margin-right:8px;"></i>Write Request (WRQ)</h3>
+        <div style="font-family:'Courier New',monospace; font-size:0.88rem; line-height:2;">
+          <div>Client → Server : <strong>WRQ</strong> (filename, mode)</div>
+          <div>Server → Client : <strong>ACK</strong> block #0 (ready)</div>
+          <div>Client → Server : <strong>DATA</strong> block #1</div>
+          <div>Server → Client : <strong>ACK</strong> block #1</div>
+          <div>Client → Server : <strong>DATA</strong> block #2</div>
+          <div>Server → Client : <strong>ACK</strong> block #2</div>
+          <div style="color:var(--text-muted)">  ... repeat ...</div>
+          <div>Client → Server : <strong>DATA</strong> block #N (0 bytes = EOF)</div>
+          <div>Server → Client : <strong>ACK</strong> block #N</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- OPCODES -->
+  <section class="section-card">
+    <h2>TFTP OpCode Reference</h2>
+    <table class="opcode-table">
+      <thead>
+        <tr><th>OpCode</th><th>Name</th><th>Direction</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="opcode-code">1 — RRQ</span></td><td>Read Request</td><td>Client → Server</td><td>Request to download a file from the server</td></tr>
+        <tr><td><span class="opcode-code">2 — WRQ</span></td><td>Write Request</td><td>Client → Server</td><td>Request to upload a file to the server</td></tr>
+        <tr><td><span class="opcode-code">3 — DATA</span></td><td>Data Packet</td><td>Both</td><td>512-byte (max) block of file data with block number</td></tr>
+        <tr><td><span class="opcode-code">4 — ACK</span></td><td>Acknowledgment</td><td>Both</td><td>Confirms receipt of a specific block number</td></tr>
+        <tr><td><span class="opcode-code">5 — ERROR</span></td><td>Error Packet</td><td>Both</td><td>Error code and message for transfer failures</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- CORE FEATURES -->
+  <section class="section-card">
+    <h2>Core Features</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3><i class="fas fa-network-wired"></i> UDP Socket Server</h3>
+        <p>Server binds to port 6969, listens for incoming packets in a loop, and dispatches RRQ/WRQ to the appropriate handler.</p>
+      </div>
+      <div class="feature-card">
+        <h3><i class="fas fa-terminal"></i> Command-Driven Client</h3>
+        <p>Client supports <code>connect</code>, <code>get</code>, <code>put</code>, <code>mode</code>, and <code>disconnect</code> commands interactively.</p>
+      </div>
+      <div class="feature-card">
+        <h3><i class="fas fa-handshake"></i> Block ACK Handshaking</h3>
+        <p>Every 512-byte data block must be acknowledged before the next is sent. Mismatched ACK block numbers trigger automatic retransmission.</p>
+      </div>
+      <div class="feature-card">
+        <h3><i class="fas fa-exchange-alt"></i> Transfer Modes</h3>
+        <p>Supports <strong>Octet</strong> (binary, byte-by-byte) and <strong>NetASCII</strong> (text, with CR/LF conversion) transfer modes.</p>
+      </div>
+      <div class="feature-card">
+        <h3><i class="fas fa-file-alt"></i> NetASCII Conversion</h3>
+        <p>On send, <code>\n</code> is prefixed with <code>\r</code>. On receive, <code>\r</code> characters are stripped — compliant with RFC 1350.</p>
+      </div>
+      <div class="feature-card">
+        <h3><i class="fas fa-clock"></i> Timeout Handling</h3>
+        <p>Socket timeout configured via <code>setsockopt(SO_RCVTIMEO)</code> to handle unresponsive peers and avoid infinite blocking.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOURCE CODE -->
+  <section class="section-card">
+    <h2>Source Code</h2>
+    <p>Click any tab to browse the full source files.</p>
+
+    <div class="code-viewer">
+      <div class="code-tabs">
+        <button class="code-tab active" data-tab="tftp_h">tftp.h</button>
+        <button class="code-tab" data-tab="tftp_c">tftp.c</button>
+        <button class="code-tab" data-tab="server">tftp_server.c</button>
+        <button class="code-tab" data-tab="client_h">tftp_client.h</button>
+      </div>
+
+      <div class="code-panels">
+
+        <!-- tftp.h -->
+        <div class="code-panel active" id="tab-tftp_h">
+          <button class="copy-btn" onclick="copyCode('tab-tftp_h')"><i class="fas fa-copy"></i> Copy</button>
+          <pre><span class="cm">/* Common header for server &amp; client */</span>
+
+<span class="pp">#ifndef TFTP_H
+#define TFTP_H
+
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;stdint.h&gt;
+#include &lt;arpa/inet.h&gt;</span>
+
+<span class="pp">#define</span> <span class="mac">PORT</span>        <span class="nm">6969</span>
+<span class="pp">#define</span> <span class="mac">BUFFER_SIZE</span> <span class="nm">516</span>   <span class="cm">// 512 bytes data + 4 bytes header</span>
+<span class="pp">#define</span> <span class="mac">TIMEOUT_SEC</span> <span class="nm">5</span>     <span class="cm">// Timeout in seconds</span>
+
+<span class="cm">/* Transfer mode flags */</span>
+<span class="pp">#define</span> <span class="mac">MODE_DEFAULT</span>  <span class="nm">1</span>
+<span class="pp">#define</span> <span class="mac">MODE_OCTET</span>    <span class="nm">2</span>
+<span class="pp">#define</span> <span class="mac">MODE_NETASCII</span> <span class="nm">3</span>
+
+<span class="cm">/* TFTP OpCodes (RFC 1350) */</span>
+<span class="kw">typedef enum</span> {
+    <span class="mac">RRQ</span>   = <span class="nm">1</span>,  <span class="cm">// Read Request</span>
+    <span class="mac">WRQ</span>   = <span class="nm">2</span>,  <span class="cm">// Write Request</span>
+    <span class="mac">DATA</span>  = <span class="nm">3</span>,  <span class="cm">// Data Packet</span>
+    <span class="mac">ACK</span>   = <span class="nm">4</span>,  <span class="cm">// Acknowledgment</span>
+    <span class="mac">ERROR</span> = <span class="nm">5</span>   <span class="cm">// Error Packet</span>
+} <span class="tp">tftp_opcode</span>;
+
+<span class="cm">/* Unified TFTP packet structure */</span>
+<span class="kw">typedef struct</span> {
+    <span class="tp">uint16_t</span> opcode;
+    <span class="kw">union</span> {
+        <span class="kw">struct</span> {
+            <span class="kw">char</span> filename[<span class="nm">256</span>];
+            <span class="kw">char</span> mode[<span class="nm">16</span>];       <span class="cm">// "octet" or "netascii"</span>
+        } request;               <span class="cm">// RRQ and WRQ</span>
+        <span class="kw">struct</span> {
+            <span class="tp">uint16_t</span> block_number;
+            <span class="kw">char</span>     data[<span class="nm">512</span>];
+        } data_packet;           <span class="cm">// DATA</span>
+        <span class="kw">struct</span> {
+            <span class="tp">uint16_t</span> block_number;
+        } ack_packet;            <span class="cm">// ACK</span>
+        <span class="kw">struct</span> {
+            <span class="tp">uint16_t</span> error_code;
+            <span class="kw">char</span>     error_msg[<span class="nm">512</span>];
+        } error_packet;          <span class="cm">// ERROR</span>
+    } body;
+} <span class="tp">tftp_packet</span>;
+
+<span class="kw">void</span> <span class="fn">send_file</span>(<span class="kw">int</span> sockfd, <span class="kw">struct</span> sockaddr_in client_addr,
+               socklen_t client_len, <span class="kw">char</span> *filename, <span class="kw">int</span> mode);
+
+<span class="kw">int</span>  <span class="fn">receive_file</span>(<span class="kw">int</span> sockfd, <span class="kw">struct</span> sockaddr_in client_addr,
+                  socklen_t client_len, <span class="kw">char</span> *filename, <span class="kw">int</span> mode);
+
+<span class="pp">#endif</span></pre>
+        </div>
+
+        <!-- tftp.c -->
+        <div class="code-panel" id="tab-tftp_c">
+          <button class="copy-btn" onclick="copyCode('tab-tftp_c')"><i class="fas fa-copy"></i> Copy</button>
+          <pre><span class="cm">/* Common file for server &amp; client */</span>
+
+<span class="pp">#include</span> <span class="str">"tftp.h"</span>
+
+<span class="cm">/* ── Send a file to the client block by block ───────────────────────────── */</span>
+<span class="kw">void</span> <span class="fn">send_file</span>(<span class="kw">int</span> sockfd, <span class="kw">struct</span> sockaddr_in client_addr,
+               socklen_t client_len, <span class="kw">char</span> *filename, <span class="kw">int</span> mode)
+{
+    <span class="kw">if</span> (<span class="fn">access</span>(filename, F_OK | R_OK) != <span class="nm">0</span>) {
+        <span class="fn">printf</span>(<span class="str">"File %s is not readable\n"</span>, filename);
+        <span class="kw">return</span>;
+    }
+    FILE *fp = <span class="fn">fopen</span>(filename, <span class="str">"rb"</span>);
+    <span class="kw">if</span> (!fp) { <span class="fn">printf</span>(<span class="str">"Couldn't read file\n"</span>); <span class="kw">return</span>; }
+
+    <span class="cm">/* Octet = 1 byte/read (binary), NetASCII = 512 bytes/read (text) */</span>
+    <span class="kw">int</span> chunk_size = (mode == <span class="mac">MODE_OCTET</span>) ? <span class="nm">1</span> : <span class="nm">512</span>;
+
+    <span class="kw">char</span>   buffer[<span class="nm">512</span>];
+    <span class="kw">int</span>    bytes, block_number = <span class="nm">1</span>;
+
+    <span class="kw">while</span> ((bytes = <span class="fn">fread</span>(buffer, <span class="nm">1</span>, chunk_size, fp)) > <span class="nm">0</span>) {
+
+        <span class="tp">tftp_packet</span> send_data;
+        <span class="fn">memset</span>(&send_data, <span class="nm">0</span>, <span class="kw">sizeof</span>(send_data));
+        send_data.opcode                        = <span class="fn">htons</span>(<span class="mac">DATA</span>);
+        send_data.body.data_packet.block_number = <span class="fn">htons</span>(block_number);
+
+        <span class="kw">int</span> packet_size;
+
+        <span class="kw">if</span> (mode == <span class="mac">MODE_NETASCII</span>) {
+            <span class="cm">/* Insert \r before every \n for NetASCII compliance */</span>
+            <span class="kw">char</span> new_buffer[<span class="nm">1024</span>];
+            <span class="kw">int</span>  new_len = <span class="nm">0</span>;
+            <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; bytes; i++) {
+                <span class="kw">if</span> (buffer[i] == <span class="str">'\n'</span>) new_buffer[new_len++] = <span class="str">'\r'</span>;
+                new_buffer[new_len++] = buffer[i];
+            }
+            <span class="fn">memcpy</span>(send_data.body.data_packet.data, new_buffer, new_len);
+            packet_size = new_len + <span class="nm">4</span>;
+        } <span class="kw">else</span> {
+            <span class="fn">memcpy</span>(send_data.body.data_packet.data, buffer, bytes);
+            packet_size = bytes + <span class="nm">4</span>;
+        }
+
+        <span class="fn">sendto</span>(sockfd, &send_data, packet_size, <span class="nm">0</span>,
+               (<span class="kw">struct</span> sockaddr *)&client_addr, client_len);
+
+        <span class="cm">/* Wait for ACK */</span>
+        <span class="tp">tftp_packet</span> response;
+        <span class="kw">int</span> recv_len = <span class="fn">recvfrom</span>(sockfd, &response, <span class="kw">sizeof</span>(response), <span class="nm">0</span>,
+                                  (<span class="kw">struct</span> sockaddr *)&client_addr, &client_len);
+        <span class="kw">if</span> (recv_len &lt; <span class="nm">0</span>) { <span class="fn">printf</span>(<span class="str">"ACK not received\n"</span>); <span class="fn">fclose</span>(fp); <span class="kw">return</span>; }
+        <span class="kw">if</span> (<span class="fn">ntohs</span>(response.opcode) != <span class="mac">ACK</span>) { <span class="fn">printf</span>(<span class="str">"Expected ACK\n"</span>); <span class="fn">fclose</span>(fp); <span class="kw">return</span>; }
+
+        <span class="tp">uint16_t</span> ack_block = <span class="fn">ntohs</span>(response.body.ack_packet.block_number);
+        <span class="kw">if</span> (ack_block != block_number) {
+            <span class="cm">/* Wrong ACK — retransmit same block */</span>
+            <span class="fn">sendto</span>(sockfd, &send_data, packet_size, <span class="nm">0</span>,
+                   (<span class="kw">struct</span> sockaddr *)&client_addr, client_len);
+            <span class="kw">continue</span>;
+        }
+        <span class="kw">if</span> (bytes &lt; chunk_size) <span class="kw">break</span>;
+        block_number++;
+    }
+
+    <span class="cm">/* Send zero-length DATA packet to signal EOF */</span>
+    <span class="kw">int</span> eof_block = (mode == <span class="mac">MODE_OCTET</span>) ? block_number : block_number + <span class="nm">1</span>;
+    <span class="tp">tftp_packet</span> final_packet;
+    <span class="fn">memset</span>(&final_packet, <span class="nm">0</span>, <span class="kw">sizeof</span>(final_packet));
+    final_packet.opcode                        = <span class="fn">htons</span>(<span class="mac">DATA</span>);
+    final_packet.body.data_packet.block_number = <span class="fn">htons</span>(eof_block);
+    <span class="fn">sendto</span>(sockfd, &final_packet, <span class="nm">4</span>, <span class="nm">0</span>,
+           (<span class="kw">struct</span> sockaddr *)&client_addr, client_len);
+
+    <span class="tp">tftp_packet</span> eof_ack;
+    <span class="fn">recvfrom</span>(sockfd, &eof_ack, <span class="kw">sizeof</span>(eof_ack), <span class="nm">0</span>,
+             (<span class="kw">struct</span> sockaddr *)&client_addr, &client_len);
+
+    <span class="fn">fclose</span>(fp);
+}
+
+<span class="cm">/* ── Receive a file from the client block by block ──────────────────────── */</span>
+<span class="kw">int</span> <span class="fn">receive_file</span>(<span class="kw">int</span> sockfd, <span class="kw">struct</span> sockaddr_in client_addr,
+                 socklen_t client_len, <span class="kw">char</span> *filename, <span class="kw">int</span> mode)
+{
+    FILE *fp = <span class="fn">fopen</span>(filename, <span class="str">"wb"</span>);
+    <span class="kw">if</span> (!fp) { <span class="fn">printf</span>(<span class="str">"Couldn't open file for writing\n"</span>); <span class="kw">return</span> -<span class="nm">1</span>; }
+
+    <span class="tp">tftp_packet</span> ack;
+    <span class="fn">memset</span>(&ack, <span class="nm">0</span>, <span class="kw">sizeof</span>(ack));
+    ack.opcode = <span class="fn">htons</span>(<span class="mac">ACK</span>);
+
+    <span class="kw">int</span> chunk_size    = (mode == <span class="mac">MODE_OCTET</span>) ? <span class="nm">1</span> : <span class="nm">512</span>;
+    <span class="kw">int</span> block_number  = <span class="nm">1</span>;
+
+    <span class="kw">while</span> (<span class="nm">1</span>) {
+        <span class="tp">tftp_packet</span> receive_data;
+        <span class="kw">int</span> bytes = <span class="fn">recvfrom</span>(sockfd, &receive_data, <span class="kw">sizeof</span>(receive_data), <span class="nm">0</span>,
+                              (<span class="kw">struct</span> sockaddr *)&client_addr, &client_len);
+        <span class="kw">if</span> (bytes &lt; <span class="nm">0</span>) { <span class="fn">printf</span>(<span class="str">"Timeout or receive error\n"</span>); <span class="fn">fclose</span>(fp); <span class="kw">return</span> -<span class="nm">1</span>; }
+
+        <span class="kw">if</span> (<span class="fn">ntohs</span>(receive_data.opcode) != <span class="mac">DATA</span>) {
+            <span class="fn">printf</span>(<span class="str">"Expected DATA packet\n"</span>); <span class="fn">fclose</span>(fp); <span class="kw">return</span> -<span class="nm">1</span>;
+        }
+
+        <span class="kw">int</span>      data_len       = bytes - <span class="nm">4</span>;
+        <span class="kw">int</span>      received_block = <span class="fn">ntohs</span>(receive_data.body.data_packet.block_number);
+
+        <span class="kw">if</span> (received_block != block_number) {
+            <span class="cm">/* Out-of-order block — re-ACK last good block */</span>
+            ack.body.ack_packet.block_number = <span class="fn">htons</span>(block_number - <span class="nm">1</span>);
+            <span class="fn">sendto</span>(sockfd, &ack, <span class="nm">4</span>, <span class="nm">0</span>, (<span class="kw">struct</span> sockaddr *)&client_addr, client_len);
+            <span class="kw">continue</span>;
+        }
+        <span class="kw">if</span> (data_len == <span class="nm">0</span>) {
+            <span class="cm">/* EOF — acknowledge and exit loop */</span>
+            ack.body.ack_packet.block_number = <span class="fn">htons</span>(block_number);
+            <span class="fn">sendto</span>(sockfd, &ack, <span class="nm">4</span>, <span class="nm">0</span>, (<span class="kw">struct</span> sockaddr *)&client_addr, client_len);
+            <span class="kw">break</span>;
+        }
+
+        <span class="kw">if</span> (mode == <span class="mac">MODE_NETASCII</span>) {
+            <span class="cm">/* Strip \r characters (reverse of send conversion) */</span>
+            <span class="kw">char</span> new_buffer[<span class="nm">1024</span>];
+            <span class="kw">int</span>  new_len = <span class="nm">0</span>;
+            <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; data_len; i++)
+                <span class="kw">if</span> (receive_data.body.data_packet.data[i] != <span class="str">'\r'</span>)
+                    new_buffer[new_len++] = receive_data.body.data_packet.data[i];
+            <span class="fn">fwrite</span>(new_buffer, <span class="nm">1</span>, new_len, fp);
+        } <span class="kw">else</span> {
+            <span class="fn">fwrite</span>(receive_data.body.data_packet.data, <span class="nm">1</span>, data_len, fp);
+        }
+
+        ack.body.ack_packet.block_number = <span class="fn">htons</span>(block_number);
+        <span class="fn">sendto</span>(sockfd, &ack, <span class="nm">4</span>, <span class="nm">0</span>, (<span class="kw">struct</span> sockaddr *)&client_addr, client_len);
+        block_number++;
+    }
+    <span class="fn">fclose</span>(fp);
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</pre>
+        </div>
+
+        <!-- tftp_server.c -->
+        <div class="code-panel" id="tab-server">
+          <button class="copy-btn" onclick="copyCode('tab-server')"><i class="fas fa-copy"></i> Copy</button>
+          <pre><span class="pp">#include</span> <span class="str">"tftp.h"</span>
+<span class="pp">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+#include &lt;unistd.h&gt;</span>
+
+<span class="kw">void</span> <span class="fn">handle_client</span>(<span class="kw">int</span> sockfd, <span class="kw">struct</span> sockaddr_in client_addr,
+                   socklen_t client_len, <span class="tp">tftp_packet</span> *packet);
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="kw">int</span> sockfd;
+    <span class="kw">struct</span> sockaddr_in server_addr, client_addr;
+    socklen_t    client_len = <span class="kw">sizeof</span>(client_addr);
+    <span class="tp">tftp_packet</span> packet;
+
+    <span class="cm">/* Create UDP socket */</span>
+    sockfd = <span class="fn">socket</span>(AF_INET, SOCK_DGRAM, <span class="nm">0</span>);
+    <span class="kw">if</span> (sockfd == -<span class="nm">1</span>) { <span class="fn">printf</span>(<span class="str">"Couldn't create socket\n"</span>); <span class="kw">return</span> <span class="nm">0</span>; }
+
+    <span class="cm">/* Configure socket timeout */</span>
+    <span class="kw">struct</span> timeval tv = { .tv_sec = <span class="mac">TIMEOUT_SEC</span>, .tv_usec = <span class="nm">0</span> };
+    <span class="cm">// setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));</span>
+
+    <span class="cm">/* Bind to all interfaces on PORT */</span>
+    server_addr.sin_family      = AF_INET;
+    server_addr.sin_port        = <span class="fn">htons</span>(<span class="mac">PORT</span>);
+    server_addr.sin_addr.s_addr = INADDR_ANY;
+
+    <span class="kw">if</span> (<span class="fn">bind</span>(sockfd, (<span class="kw">struct</span> sockaddr *)&server_addr, <span class="kw">sizeof</span>(server_addr)) &lt; <span class="nm">0</span>) {
+        <span class="fn">perror</span>(<span class="str">"bind"</span>); <span class="fn">close</span>(sockfd); <span class="kw">return</span> <span class="nm">1</span>;
+    }
+
+    <span class="fn">printf</span>(<span class="str">"TFTP Server listening on port %d...\n"</span>, <span class="mac">PORT</span>);
+
+    <span class="cm">/* Main request loop */</span>
+    <span class="kw">while</span> (<span class="nm">1</span>) {
+        <span class="kw">int</span> n = <span class="fn">recvfrom</span>(sockfd, &packet, <span class="mac">BUFFER_SIZE</span>, <span class="nm">0</span>,
+                         (<span class="kw">struct</span> sockaddr *)&client_addr, &client_len);
+        <span class="kw">if</span> (n &lt; <span class="nm">0</span>) { <span class="fn">perror</span>(<span class="str">"Receive failed or timeout"</span>); <span class="kw">continue</span>; }
+        <span class="fn">handle_client</span>(sockfd, client_addr, client_len, &packet);
+    }
+
+    <span class="fn">close</span>(sockfd);
+    <span class="kw">return</span> <span class="nm">0</span>;
+}
+
+<span class="kw">void</span> <span class="fn">handle_client</span>(<span class="kw">int</span> sockfd, <span class="kw">struct</span> sockaddr_in client_addr,
+                   socklen_t client_len, <span class="tp">tftp_packet</span> *packet)
+{
+    <span class="kw">char</span> *filename = packet->body.request.filename;
+    <span class="kw">int</span>   mode;
+
+    <span class="cm">/* Parse transfer mode string */</span>
+    <span class="kw">if</span>      (!<span class="fn">strcmp</span>(packet->body.request.mode, <span class="str">"octet"</span>))    mode = <span class="mac">MODE_OCTET</span>;
+    <span class="kw">else if</span> (!<span class="fn">strcmp</span>(packet->body.request.mode, <span class="str">"netascii"</span>)) mode = <span class="mac">MODE_NETASCII</span>;
+    <span class="kw">else</span>                                                        mode = <span class="mac">MODE_DEFAULT</span>;
+
+    <span class="kw">if</span> (<span class="fn">ntohs</span>(packet->opcode) == <span class="mac">RRQ</span>) {
+        <span class="fn">printf</span>(<span class="str">"RRQ: %s (mode: %s)\n"</span>, filename, packet->body.request.mode);
+        <span class="fn">send_file</span>(sockfd, client_addr, client_len, filename, mode);
+        <span class="fn">printf</span>(<span class="str">"File '%s' sent successfully.\n"</span>, filename);
+
+    } <span class="kw">else if</span> (<span class="fn">ntohs</span>(packet->opcode) == <span class="mac">WRQ</span>) {
+        <span class="fn">printf</span>(<span class="str">"WRQ: %s (mode: %s)\n"</span>, filename, packet->body.request.mode);
+        <span class="cm">/* ACK block 0 to signal server is ready to receive */</span>
+        <span class="tp">tftp_packet</span> ack0;
+        <span class="fn">memset</span>(&ack0, <span class="nm">0</span>, <span class="kw">sizeof</span>(ack0));
+        ack0.opcode                      = <span class="fn">htons</span>(<span class="mac">ACK</span>);
+        ack0.body.ack_packet.block_number = <span class="fn">htons</span>(<span class="nm">0</span>);
+        <span class="fn">sendto</span>(sockfd, &ack0, <span class="nm">4</span>, <span class="nm">0</span>,
+               (<span class="kw">struct</span> sockaddr *)&client_addr, client_len);
+        <span class="fn">receive_file</span>(sockfd, client_addr, client_len, filename, mode);
+        <span class="fn">printf</span>(<span class="str">"File '%s' received successfully.\n"</span>, filename);
+    }
+}</pre>
+        </div>
+
+        <!-- tftp_client.h -->
+        <div class="code-panel" id="tab-client_h">
+          <button class="copy-btn" onclick="copyCode('tab-client_h')"><i class="fas fa-copy"></i> Copy</button>
+          <pre><span class="pp">#ifndef TFTP_CLIENT_H
+#define TFTP_CLIENT_H</span>
+
+<span class="cm">/* Client state — holds socket, server address, mode, connection status */</span>
+<span class="kw">typedef struct</span> {
+    <span class="kw">int</span>              sockfd;
+    <span class="kw">struct</span> sockaddr_in server_addr;
+    socklen_t        server_len;
+    <span class="kw">char</span>             server_ip[INET_ADDRSTRLEN];
+    <span class="kw">int</span>              connected;
+    <span class="kw">int</span>              mode;
+} <span class="tp">tftp_client_t</span>;
+
+<span class="cm">/* Client lifecycle */</span>
+<span class="kw">void</span> <span class="fn">connect_to_server</span>(<span class="tp">tftp_client_t</span> *client, <span class="kw">char</span> *ip, <span class="kw">int</span> port);
+<span class="kw">void</span> <span class="fn">put_file</span>(<span class="tp">tftp_client_t</span> *client, <span class="kw">char</span> *filename);
+<span class="kw">void</span> <span class="fn">get_file</span>(<span class="tp">tftp_client_t</span> *client, <span class="kw">char</span> *filename);
+<span class="kw">void</span> <span class="fn">disconnect</span>(<span class="tp">tftp_client_t</span> *client);
+<span class="kw">void</span> <span class="fn">process_command</span>(<span class="tp">tftp_client_t</span> *client, <span class="kw">char</span> *command);
+
+<span class="cm">/* Low-level request helpers */</span>
+<span class="kw">void</span> <span class="fn">send_request</span>(<span class="kw">int</span> sockfd, <span class="kw">struct</span> sockaddr_in server_addr,
+                  <span class="kw">char</span> *filename, <span class="kw">int</span> opcode, <span class="kw">int</span> mode);
+<span class="kw">void</span> <span class="fn">receive_request</span>(<span class="kw">int</span> sockfd, <span class="kw">struct</span> sockaddr_in server_addr,
+                     <span class="kw">char</span> *filename, <span class="kw">int</span> opcode, <span class="kw">int</span> mode);
+
+<span class="pp">#endif</span></pre>
+        </div>
+
+      </div><!-- /code-panels -->
+    </div><!-- /code-viewer -->
+  </section>
+
+  <!-- FILE STRUCTURE -->
+  <section class="section-card">
+    <h2>Project Architecture</h2>
+    <div class="file-structure">
+      <h3>File Structure</h3>
+      <div class="file-item"><i class="fas fa-file"></i><span><strong>tftp.h</strong> — Shared header: packet struct, opcodes, mode flags, function prototypes</span></div>
+      <div class="file-item"><i class="fas fa-file-code"></i><span><strong>tftp.c</strong> — Core logic: <code>send_file()</code> and <code>receive_file()</code> shared by server &amp; client</span></div>
+      <div class="file-item"><i class="fas fa-file-code"></i><span><strong>tftp_server.c</strong> — UDP server: socket bind, request loop, RRQ/WRQ dispatcher</span></div>
+      <div class="file-item"><i class="fas fa-file"></i><span><strong>tftp_client.h</strong> — Client state struct and command interface prototypes</span></div>
+    </div>
+  </section>
+
+  <!-- COMPILE -->
+  <section class="section-card">
+    <h2>Compilation &amp; Usage</h2>
+    <div class="code-viewer">
+      <div class="code-tabs">
+        <button class="code-tab active" data-tab="compile">compile</button>
+        <button class="code-tab" data-tab="demo">sample session</button>
+      </div>
+      <div class="code-panels">
+        <div class="code-panel active" id="tab-compile">
+          <pre><span class="cm"># Compile server</span>
+gcc tftp_server.c tftp.c -o tftp_server
+
+<span class="cm"># Compile client (once client.c is implemented)</span>
+gcc tftp_client.c tftp.c -o tftp_client
+
+<span class="cm"># Run server (terminal 1)</span>
+./tftp_server
+TFTP Server listening on port 6969...
+
+<span class="cm"># Run client (terminal 2)</span>
+./tftp_client</pre>
+        </div>
+        <div class="code-panel" id="tab-demo">
+          <pre><span class="cm"># Server output during a file transfer</span>
+TFTP Server listening on port 6969...
+RRQ: hello.txt (mode: octet)
+File 'hello.txt' sent successfully.
+
+WRQ: upload.txt (mode: netascii)
+File 'upload.txt' received successfully.
+
+<span class="cm"># Client session (interactive)</span>
+tftp&gt; connect 127.0.0.1 6969
+Connected to 127.0.0.1:6969
+
+tftp&gt; mode octet
+Mode set to octet
+
+tftp&gt; get hello.txt
+Receiving hello.txt...
+Transfer complete.
+
+tftp&gt; put upload.txt
+Sending upload.txt...
+Transfer complete.
+
+tftp&gt; disconnect</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TECHNOLOGIES -->
+  <section class="section-card">
+    <h2>Technologies &amp; Concepts</h2>
+    <div class="tech-tags">
+      <span>C</span><span>Linux</span><span>UDP Sockets</span>
+      <span>TFTP RFC 1350</span><span>socket() / bind() / recvfrom() / sendto()</span>
+      <span>htons() / ntohs()</span><span>Stop-and-Wait</span>
+      <span>NetASCII Mode</span><span>Octet Mode</span>
+      <span>Block ACK</span><span>Network Byte Order</span>
+      <span>File I/O</span><span>setsockopt()</span>
+    </div>
+  </section>
+
+  <!-- CHALLENGES -->
+  <section class="section-card">
+    <h2>Key Challenges &amp; Solutions</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3><i class="fas fa-sync-alt"></i> Retransmission Logic</h3>
+        <p>When an ACK with the wrong block number is received, the same data packet is resent rather than advancing — ensuring no block is skipped on a lossy link.</p>
+      </div>
+      <div class="feature-card">
+        <h3><i class="fas fa-file-code"></i> NetASCII Conversion</h3>
+        <p>Text files require inserting <code>\r</code> before <code>\n</code> on send and stripping <code>\r</code> on receive — handled transparently based on the negotiated mode.</p>
+      </div>
+      <div class="feature-card">
+        <h3><i class="fas fa-flag-checkered"></i> EOF Signalling</h3>
+        <p>A final DATA packet with zero bytes signals end-of-file. Octet and NetASCII modes calculate the EOF block number differently due to chunk size differences.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  document.querySelectorAll('.code-tab').forEach(tab => {
+    tab.addEventListener('click', function () {
+      const viewer = this.closest('.code-viewer');
+      viewer.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
+      viewer.querySelectorAll('.code-panel').forEach(p => p.classList.remove('active'));
+      this.classList.add('active');
+      const panel = document.getElementById('tab-' + this.dataset.tab);
+      if (panel) panel.classList.add('active');
+    });
+  });
+
+  function copyCode(panelId) {
+    const panel = document.getElementById(panelId);
+    const text  = panel.querySelector('pre').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn  = panel.querySelector('.copy-btn');
+      const orig = btn.innerHTML;
+      btn.innerHTML   = '<i class="fas fa-check"></i> Copied!';
+      btn.style.color = '#34d399';
+      setTimeout(() => { btn.innerHTML = orig; btn.style.color = ''; }, 2000);
+    });
+  }
+</script>
+
+</body>
+</html>
